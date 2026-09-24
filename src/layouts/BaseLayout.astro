@@ -1,0 +1,87 @@
+---
+import { site } from '../data/site';
+import { withBase } from '../lib/url';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  canonicalPath?: string;
+  schema?: Record<string, unknown>;
+}
+
+const { title = site.title, description = site.description, image = '/og.png', type = 'website', canonicalPath = Astro.url.pathname, schema } = Astro.props;
+const fullTitle = title === site.title ? title : `${title} · ${site.title}`;
+const cleanPath = canonicalPath.replace(import.meta.env.BASE_URL, '/');
+const canonical = new URL(withBase(cleanPath), Astro.site).toString();
+const socialImage = new URL(withBase(image), Astro.site).toString();
+const jsonLd = schema ? JSON.stringify(schema).replace(/</g, '\\u003c') : '';
+---
+<!doctype html>
+<html lang="zh-CN" data-sw-url={withBase('/service-worker.js')}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f6f2" />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="manifest" href={withBase('/manifest.webmanifest')} />
+    <link rel="alternate" type="application/rss+xml" title={`${site.title} RSS`} href={withBase('/rss.xml')} />
+    <link rel="canonical" href={canonical} />
+    <meta name="description" content={description} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <title>{fullTitle}</title>
+    {schema && <script type="application/ld+json" set:html={jsonLd} />}
+    <script is:inline>
+      try {
+        const choice = localStorage.getItem('theme');
+        document.documentElement.dataset.theme = choice || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch { document.documentElement.dataset.theme = 'light'; }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <header class="site-header">
+      <div class="header-inner shell">
+        <a class="brand" href={withBase('/')} aria-label={`${site.title}，返回首页`}><span class="brand-mark" aria-hidden="true">P<span>·</span></span><span>{site.title}</span></a>
+        <nav class="desktop-nav" aria-label="主导航">
+          {site.nav.map((item) => <a href={withBase(item.href)} aria-current={Astro.url.pathname.endsWith(item.href) && item.href !== '/' ? 'page' : undefined}>{item.label}</a>)}
+        </nav>
+        <div class="header-actions">
+          <a class="icon-button" href={withBase('/search/')} aria-label="搜索文章" title="搜索文章"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></a>
+          <button class="icon-button theme-toggle" type="button" aria-label="切换深浅色模式" title="切换深浅色模式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z"/></svg></button>
+          <button class="icon-button menu-toggle" type="button" aria-label="展开菜单" aria-expanded="false" aria-controls="mobile-nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
+        </div>
+      </div>
+      <nav id="mobile-nav" class="mobile-nav shell" aria-label="移动端导航" hidden>{site.nav.map((item) => <a href={withBase(item.href)}>{item.label}</a>)}<a href={withBase('/search/')}>搜索</a></nav>
+    </header>
+    <main id="main"><slot /></main>
+    <footer class="site-footer"><div class="shell footer-inner"><div><a class="footer-brand" href={withBase('/')}>{site.title}</a><p>慢慢写，认真生活。</p></div><div class="footer-links"><a href={withBase('/about/')}>关于</a><a href={withBase('/contact/')}>联系</a><a href={withBase('/rss.xml')}>RSS</a><a href={withBase('/search/')}>搜索</a></div><small>© {new Date().getFullYear()} {site.author}. 用 Astro 构建。</small></div></footer>
+    <script>
+      document.querySelector<HTMLButtonElement>('.theme-toggle')?.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch { /* 私密模式下仍可切换本页 */ }
+      });
+      const menu = document.querySelector<HTMLButtonElement>('.menu-toggle');
+      const mobileNav = document.querySelector<HTMLElement>('#mobile-nav');
+      menu?.addEventListener('click', () => {
+        if (!mobileNav) return;
+        mobileNav.hidden = !mobileNav.hidden;
+        menu.setAttribute('aria-expanded', String(!mobileNav.hidden));
+      });
+      if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register(document.documentElement.dataset.swUrl || '/service-worker.js').catch(() => {}));
+    </script>
+  </body>
+</html>

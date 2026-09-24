@@ -1,0 +1,7 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/url';
+import { site } from '../data/site';
+---
+<BaseLayout title="关于" description="了解 Paistar 手记和它记录的主题。"><div class="narrow page-hero"><span class="eyebrow">ABOUT THE AUTHOR</span><h1>你好，我是 {site.author}。</h1><p>一个喜欢把问题想清楚、把日常写下来的普通人。欢迎来到我的小小角落。</p></div><div class="narrow about-body"><div class="opening"><span aria-hidden="true">✳</span><p>这里是一个持续更新的个人博客。它不追逐复杂的功能，而是尽量让文字有足够舒服的空间。</p></div><h2>这里会写什么</h2><p>技术札记记录实践与经验；读书笔记保留阅读时生出的疑问；生活随笔则收集那些走得慢一些才会看见的细节。</p><h2>这个站点如何运作</h2><p>网站由 Astro 构建并托管在 GitHub Pages。文章是 Markdown 或 MDX 文件，搜索索引、分类、RSS 与站点地图都在构建时生成。没有数据库，也没有追踪读者的服务。</p><h2>继续看看</h2><p>你可以从<a href={withBase('/archive/')}>文章归档</a>开始阅读，或通过<a href={withBase('/contact/')}>联系页面</a>找到我。示例文章是可替换的起点，今后这里会逐渐长出真正属于自己的内容。</p><div class="about-actions"><a class="button" href={withBase('/archive/')}>去读文章 ↗</a><a class="button button-secondary" href={withBase('/contact/')}>联系我</a></div></div></BaseLayout>
+<style>.about-body{font-size:1.06rem;line-height:2}.about-body h2{margin:2.2em 0 .5em;font-size:1.55rem;letter-spacing:-.04em}.about-body p{color:var(--muted)}.about-body a:not(.button){color:var(--accent);text-decoration:underline;text-underline-offset:4px}.opening{display:grid;grid-template-columns:55px 1fr;gap:20px;padding:25px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}.opening span{color:var(--warm);font-size:2.3rem}.opening p{margin:0;color:var(--text)}.about-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:40px}</style>
