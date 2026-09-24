@@ -1,6 +1,0 @@
----
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { withBase } from '../lib/url';
----
-<BaseLayout title="暂时离线" description="网络暂时不可用，稍后再来阅读。"><div class="narrow offline"><span class="eyebrow">OFFLINE MODE</span><h1>网络走开了一会儿。</h1><p>已经打开过的页面可能仍可阅读。恢复网络后刷新，或返回首页继续浏览。</p><a class="button" href={withBase('/')}>返回首页 ↗</a></div></BaseLayout>
-<style>.offline{min-height:55vh;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}.offline h1{margin:15px 0;font-size:clamp(2.2rem,5vw,3.7rem);letter-spacing:-.06em}.offline p{color:var(--muted);margin-bottom:30px}</style>

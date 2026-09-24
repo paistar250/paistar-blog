@@ -1,72 +1,40 @@
-# Paistar 手记
+# Paistar · 工具台
 
-基于 Astro 的中文个人博客。纯静态构建，发布到 GitHub Pages；文章用 Markdown/MDX 编写，搜索由 Pagefind 在构建时生成。无需服务器、数据库或前端密钥。
+运行在 [paistar.eu.cc](https://paistar.eu.cc/) 的个人工具平台。使用 Next.js App Router 的 `output: 'export'`、Tailwind CSS v4 和 shadcn/ui 组件；GitHub Pages 只托管 `out/` 静态文件，不需要服务器或数据库。
 
-## 本地运行
+## 功能
 
-需要 Node.js 24 和 npm。第一次运行：
+- 首页：品牌区、全局搜索（支持 `/` 快捷键）、分类导航、精选工具、可筛选工具卡片。
+- 五个可用工具：JSON 格式化/压缩、时间戳转换、Base64/URL 编解码、逐行文本对比、二维码生成/PNG 下载。
+- 独立工具详情页、关于、更新记录、404、robots 和 sitemap。
+- 深浅色模式：优先读取本地选择，否则跟随系统；首屏 HTML 在加载样式前设定主题。移动端导航与适度玻璃效果；尊重 `prefers-reduced-motion`。
+- 工具输入在浏览器里处理。本站不提供登录、评论或任何需要服务器的假功能。
+
+## 本地开发和验证
+
+需要 Node.js 24 与 npm：
 
 ```bash
 npm ci
 npm run dev
-```
-
-访问终端显示的本地地址。正式检查：
-
-```bash
-npm run check
+npm test
+npm run lint
 npm run build
-npm run preview
 ```
 
-`npm run build` 会生成 `dist/`，并对静态 HTML 建立 Pagefind 搜索索引。直接用 `astro build` 不会生成搜索索引。
+`npm run build` 会在 `out/` 生成可直接部署的静态网站。想检查真正的导出文件，可运行 `npm run preview`，再在另一个终端运行 `TEST_URL=http://127.0.0.1:4178 npm run test:e2e`。在 Windows PowerShell 中先执行 `$env:TEST_URL='http://127.0.0.1:4178'`，再执行 `npm run test:e2e`。E2E 默认使用 `C:\Program Files\Google\Chrome\Application\chrome.exe`；也可设置 `CHROME_PATH`。浏览器测试覆盖搜索、分类、五个工具、主题、手机导航和 404，并把截图放入 `.qa/`。
 
-## 新增文章
+## 增加工具
 
-在 `src/content/posts/` 新建 `my-story.md` 或 `my-story.mdx`。文件名就是文章 URL 的最后一段，例如 `/posts/my-story/`。建议用英文小写和连字符命名。最小示例：
+1. 在 `src/lib/tools.ts` 中添加工具的 id、名称、分类、关键词和说明。
+2. 在 `src/components/tool-workspace.tsx` 中实现工具组件，并在 `ToolWorkspace` 的 switch 中注册。
+3. `src/app/tools/[slug]/page.tsx` 的 `generateStaticParams` 会在构建时为每个工具生成 HTML。新工具必须在浏览器离线逻辑中真正可用。
+4. 为转换逻辑补充 `tests/transform.test.mjs` 或 E2E 用例，再运行以上检查。
 
-```md
----
-title: 我的第一篇文章
-description: 用一句话介绍文章内容。
-date: 2026-09-24
-category: 技术札记
-tags: [Astro, 前端]
-draft: false
-readingMinutes: 5
----
+全站视觉变量在 `src/app/globals.css`；导航在 `src/components/site-header.tsx`。基础按钮使用 shadcn/ui CLI 生成的 `src/components/ui/button.tsx`。编辑样式时保持清晰文字对比，玻璃材质只用于导航与搜索建议浮层。
 
-这里开始写正文。使用 ## 和 ### 标题会自动生成文章目录。
-```
+## 发布与回退
 
-支持字段：`title`、`description`、`date`、`category` 必填；`tags`、`updated`、`draft`、`featured`、`readingMinutes` 可选。`draft: true` 不会发布。`featured: true` 可以成为首页焦点文章。分类和标签新增名称时，在 `src/lib/blog.ts` 的 `slugs` 对照表中添加英文路径名。
+推送到 `main` 后，`.github/workflows/deploy.yml` 运行单元测试、lint、静态构建，并把 `out/` 部署到已启用 GitHub Actions 发布源的 GitHub Pages。仓库 Pages 自定义域名保持 `paistar.eu.cc`；`public/.nojekyll` 防止静态资源路径受 Jekyll 处理。域名及 HTTPS 在 GitHub Pages Settings 中查看；Cloudflare DNS 继续指向 GitHub Pages。
 
-Markdown 内链请使用相对于文章路径的地址（例如 `../../about/`），这样在 GitHub 临时预览地址和正式域名下都能工作。MDX 可引入 Astro 组件。图片建议放在 `src/assets/` 并使用 `astro:assets` 的 `Image` 组件；`astro-static-site.mdx` 展示了生成响应式 WebP 图片的写法。每张图片都要写有意义的 `alt` 文本。
-
-## 修改网站信息
-
-`src/data/site.ts` 集中配置博客名称、作者、简介、公开 GitHub 地址和可选邮箱。邮箱留空时，联系页不会显示邮箱入口。首页、关于页的正文可直接修改对应的 `.astro` 文件。`scripts/generate-art.mjs` 用于生成示例插画、分享卡片和 PWA 图标；替换图片后可重新运行 `node scripts/generate-art.mjs`。
-
-如需真实评论、邮件订阅或其他动态功能，应选择独立服务，并明确处理隐私、审核与反垃圾。本站目前只提供 GitHub 联系入口与 RSS；不会展示无法工作的表单或登录界面，也不要把服务密钥放进前端代码或仓库。
-
-## 发布与域名
-
-仓库的 `.github/workflows/deploy.yml` 在每次推送 `main` 时自动构建并部署，也可从 Actions 手动触发。GitHub 仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**。工作流使用 `withastro/action`、`actions/deploy-pages`；提交时必须包含 `package-lock.json`。
-
-工作流读取两个 GitHub 仓库变量，可在 **Settings → Secrets and variables → Actions → Variables** 修改：
-
-| 变量 | 预览地址 | 正式域名 |
-| --- | --- | --- |
-| `SITE_URL` | `https://paistar250.github.io` | `https://paistar.eu.cc` |
-| `BASE_PATH` | `/paistar-blog` | `/` |
-
-默认值用于新仓库的临时地址 `https://paistar250.github.io/paistar-blog/`。切到正式域名时，设置上述正式值并重新运行工作流。GitHub Pages 的自定义域名必须在仓库 **Settings → Pages → Custom domain** 或 GitHub API 中设置；对于 Actions 发布源，仓库中的 `CNAME` 文件不负责绑定域名。正式 DNS 在 Cloudflare 由四条根域名 A 记录指向 GitHub Pages：`185.199.108.153`、`185.199.109.153`、`185.199.110.153`、`185.199.111.153`。先以 DNS only 验证 GitHub 证书与 HTTPS，再按需启用 Cloudflare 代理。
-
-## 已实现功能
-
-- 首页、文章页、分类、标签、归档、搜索、目录、阅读进度、相关文章及前后篇；
-- Markdown/MDX、代码高亮、浅色/深色模式、响应式排版、减少动画偏好；
-- canonical、Open Graph/Twitter 分享图、BlogPosting 结构化数据、站点地图、robots.txt、RSS；
-- Astro 响应式图片、PWA 清单、离线回退页和已访问页面缓存、跳到正文与键盘焦点。
-
-搜索在纯本地预览中需要先执行 `npm run build`；开发服务器没有生成 Pagefind 索引。PWA 离线功能需要 HTTPS（或浏览器允许的 localhost 环境）。
+旧博客完整代码保存在 Git 标签 [`blog-v1`](https://github.com/paistar250/paistar-blog/tree/blog-v1)。如需回退，先在本地以该标签检查旧版本，再对工具平台上线提交执行 `git revert` 并推送 `main`；Actions 会重新发布旧站。操作前检查之后的提交，避免一并撤销新的内容。

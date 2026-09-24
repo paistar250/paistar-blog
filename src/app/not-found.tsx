@@ -1,0 +1,3 @@
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+export default function NotFound() { return <div className="container-wide flex min-h-[65vh] flex-col justify-center py-20"><p className="eyebrow text-primary">404 / LOST IN SPACE</p><h1 className="display-heading mt-5">这里暂时<br/>没有工具。</h1><p className="mt-6 max-w-md text-[15px] leading-7 text-muted-foreground">链接可能已经改变。回到工具台，看看现在有哪些小帮手。</p><Link href="/" className="mt-8 inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-[13px] font-semibold text-primary-foreground"><ArrowLeft size={16}/> 返回首页</Link></div>; }

@@ -1,6 +1,0 @@
----
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { withBase } from '../lib/url';
----
-<BaseLayout title="页面未找到" description="这篇故事暂时不在这里。"><div class="narrow missing"><span class="number">404</span><span class="eyebrow">PAGE NOT FOUND</span><h1>这条路，暂时没有文章。</h1><p>地址可能变了，也可能只是多敲了一个字符。回到首页，继续找找感兴趣的内容。</p><div class="actions"><a class="button" href={withBase('/')}>返回首页 ↗</a><a class="button button-secondary" href={withBase('/search/')}>搜索文章</a></div></div></BaseLayout>
-<style>.missing{min-height:55vh;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}.number{color:var(--accent-soft);font-family:Georgia,serif;font-size:clamp(7rem,19vw,14rem);font-weight:800;line-height:1}.missing h1{margin:14px 0;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:-.06em}.missing p{color:var(--muted)}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:25px}</style>

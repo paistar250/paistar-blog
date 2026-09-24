@@ -1,6 +1,0 @@
----
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { site } from '../data/site';
----
-<BaseLayout title="联系" description="与 Paistar 手记的作者交流。"><div class="narrow page-hero"><span class="eyebrow">SAY HELLO</span><h1>从一句你好开始。</h1><p>有想法、建议或关于文章的问题，都欢迎交流。</p></div><div class="narrow contact-grid"><a class="contact-card" href={site.github} target="_blank" rel="noopener noreferrer"><span class="eyebrow">GITHUB</span><h2>在 GitHub 找到我 <span aria-hidden="true">↗</span></h2><p>查看网站源码、提出问题或参与讨论。</p></a>{site.email && <a class="contact-card" href={`mailto:${site.email}`}><span class="eyebrow">EMAIL</span><h2>发送电子邮件 <span aria-hidden="true">↗</span></h2><p>{site.email}</p></a>}</div><div class="narrow contact-note"><h2>关于评论与订阅</h2><p>本站暂时不提供评论账号或邮件订阅。未来若接入真实服务，会清楚标注提供方和数据使用方式。现在可以通过 RSS 免费订阅更新。</p></div></BaseLayout>
-<style>.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}.contact-card{display:block;padding:32px;border:1px solid var(--line);border-radius:19px;background:var(--surface)}.contact-card:hover{border-color:var(--accent)}.contact-card h2{display:flex;justify-content:space-between;margin:25px 0 8px;font-size:1.3rem}.contact-card h2 span{color:var(--accent)}.contact-card p,.contact-note p{color:var(--muted)}.contact-note{margin-top:48px}.contact-note h2{font-size:1.25rem}</style>

@@ -1,9 +1,0 @@
----
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import PostCard from '../../components/PostCard.astro';
-import { getPosts, categories, type Post } from '../../lib/blog';
-interface Props { name: string; posts: Post[]; }
-export async function getStaticPaths() { const posts = await getPosts(); return categories(posts).map((item) => ({ params: { slug: item.slug }, props: { name: item.name, posts: posts.filter((post) => post.data.category === item.name) } })); }
-const { name, posts } = Astro.props;
----
-<BaseLayout title={`${name} · 分类`} description={`浏览「${name}」分类下的 ${posts.length} 篇文章。`}><div class="shell page-hero"><span class="eyebrow">CATEGORY / {posts.length} ARTICLES</span><h1>{name}</h1><p>从这个主题继续探索。</p></div><div class="shell post-grid">{posts.map((post, index) => <PostCard post={post} index={index} />)}</div></BaseLayout>

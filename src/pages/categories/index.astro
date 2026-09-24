@@ -1,8 +1,0 @@
----
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPosts, categories } from '../../lib/blog';
-import { withBase } from '../../lib/url';
-const list = categories(await getPosts());
----
-<BaseLayout title="文章分类" description="从技术、阅读与生活主题探索文章。"><div class="shell page-hero"><span class="eyebrow">EXPLORE BY TOPIC</span><h1>文章分类</h1><p>不同主题，记录同一个人的好奇心。</p></div><div class="shell term-grid">{list.map((item, index) => <a href={withBase(`/categories/${item.slug}/`)}><span class="eyebrow">0{index + 1} / TOPIC</span><h2>{item.name} <span>↗</span></h2><p>{item.count} 篇文章</p></a>)}</div></BaseLayout>
-<style>.term-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.term-grid a{padding:35px;border:1px solid var(--line);border-radius:19px;background:var(--surface)}.term-grid a:hover{border-color:var(--accent)}.term-grid h2{display:flex;justify-content:space-between;margin:30px 0 15px;font-size:1.65rem;letter-spacing:-.04em}.term-grid h2 span{color:var(--accent);font-size:1.2rem}.term-grid p{color:var(--muted);font-size:.9rem}@media(max-width:700px){.term-grid{grid-template-columns:1fr}}</style>
