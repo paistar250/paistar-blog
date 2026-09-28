@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPosts, tags } from '../../lib/blog';
+import { withBase } from '../../lib/url';
+const list = tags(await getPosts());
+---
+<BaseLayout title="文章标签" description="通过标签寻找感兴趣的文章。"><div class="shell page-hero"><span class="eyebrow">EXPLORE BY KEYWORD</span><h1>文章标签</h1><p>从一个小小的关键词，进入一串相连的想法。</p></div><div class="shell tag-cloud">{list.map((item) => <a class="pill" href={withBase(`/tags/${item.slug}/`)}># {item.name} <small>{item.count}</small></a>)}</div></BaseLayout>
+<style>.tag-cloud{display:flex;flex-wrap:wrap;gap:13px}.tag-cloud .pill{padding:14px 20px;font-size:1rem}</style>

@@ -1,40 +1,64 @@
-# Paistar · 工具台
+# Paistar 手记
 
-运行在 [paistar.eu.cc](https://paistar.eu.cc/) 的个人工具平台。使用 Next.js App Router 的 `output: 'export'`、Tailwind CSS v4 和 shadcn/ui 组件；GitHub Pages 只托管 `out/` 静态文件，不需要服务器或数据库。
+一个可长期维护的中文个人博客。Astro 生成纯静态页面，部署到 GitHub Pages，域名为 [paistar.eu.cc](https://paistar.eu.cc/)。Cloudflare 管理 DNS。首页采用原创不对称 Bento 网格，正文保持适合阅读的单栏排版。
 
-## 功能
+## 本地运行与检查
 
-- 首页：品牌区、全局搜索（支持 `/` 快捷键）、分类导航、精选工具、可筛选工具卡片。
-- 五个可用工具：JSON 格式化/压缩、时间戳转换、Base64/URL 编解码、逐行文本对比、二维码生成/PNG 下载。
-- 独立工具详情页、关于、更新记录、404、robots 和 sitemap。
-- 深浅色模式：优先读取本地选择，否则跟随系统；首屏 HTML 在加载样式前设定主题。移动端导航与适度玻璃效果；尊重 `prefers-reduced-motion`。
-- 工具输入在浏览器里处理。本站不提供登录、评论或任何需要服务器的假功能。
-
-## 本地开发和验证
-
-需要 Node.js 24 与 npm：
+需要 Node.js 24 和 npm。
 
 ```bash
 npm ci
 npm run dev
-npm test
-npm run lint
+npm run check
 npm run build
+npm test
+npm run preview
 ```
 
-`npm run build` 会在 `out/` 生成可直接部署的静态网站。想检查真正的导出文件，可运行 `npm run preview`，再在另一个终端运行 `TEST_URL=http://127.0.0.1:4178 npm run test:e2e`。在 Windows PowerShell 中先执行 `$env:TEST_URL='http://127.0.0.1:4178'`，再执行 `npm run test:e2e`。E2E 默认使用 `C:\Program Files\Google\Chrome\Application\chrome.exe`；也可设置 `CHROME_PATH`。浏览器测试覆盖搜索、分类、五个工具、主题、手机导航和 404，并把截图放入 `.qa/`。
+`npm run build` 会在 `dist/` 生成所有页面和 Pagefind 搜索索引。开发服务器没有搜索索引；测试搜索请在构建后使用 `npm run preview`。`npm test` 会检查生成的页面、链接、锚点、RSS 和站点地图。浏览器交互测试可运行 `npm run test:e2e`（需要本机 Chrome）。
 
-## 增加工具
+## 新增或更新文章
 
-1. 在 `src/lib/tools.ts` 中添加工具的 id、名称、分类、关键词和说明。
-2. 在 `src/components/tool-workspace.tsx` 中实现工具组件，并在 `ToolWorkspace` 的 switch 中注册。
-3. `src/app/tools/[slug]/page.tsx` 的 `generateStaticParams` 会在构建时为每个工具生成 HTML。新工具必须在浏览器离线逻辑中真正可用。
-4. 为转换逻辑补充 `tests/transform.test.mjs` 或 E2E 用例，再运行以上检查。
+在 `src/content/posts/` 新建 `my-story.md` 或 `my-story.mdx`。文件名决定 URL，例如 `/posts/my-story/`。示例文章可以直接替换；修改后提交到 `main` 即自动发布。
 
-全站视觉变量在 `src/app/globals.css`；导航在 `src/components/site-header.tsx`。基础按钮使用 shadcn/ui CLI 生成的 `src/components/ui/button.tsx`。编辑样式时保持清晰文字对比，玻璃材质只用于导航与搜索建议浮层。
+```md
+---
+title: 我的第一篇文章
+description: 一句话介绍文章内容。
+date: 2026-09-28
+category: 技术札记
+tags: [写作, 前端]
+draft: false
+featured: false
+pinned: false
+readingMinutes: 5
+---
 
-## 发布与回退
+这里开始正文。用 ## 和 ### 标题生成文章目录。
+```
 
-推送到 `main` 后，`.github/workflows/deploy.yml` 运行单元测试、lint、静态构建，并把 `out/` 部署到已启用 GitHub Actions 发布源的 GitHub Pages。仓库 Pages 自定义域名保持 `paistar.eu.cc`；`public/.nojekyll` 防止静态资源路径受 Jekyll 处理。域名及 HTTPS 在 GitHub Pages Settings 中查看；Cloudflare DNS 继续指向 GitHub Pages。
+`title`、`description`、`date`、`category` 必填；`tags`、`updated`、`draft`、`featured`、`pinned`、`readingMinutes` 可选。`draft: true` 不发布。首页置顶区使用最新的 `pinned: true` 文章；精选区使用未置顶的 `featured: true` 文章。首页最新记录、分类、标签、归档和 RSS 会自动更新。新分类或标签建议在 `src/lib/blog.ts` 的 `slugs` 中加入稳定英文路径。
 
-旧博客完整代码保存在 Git 标签 [`blog-v1`](https://github.com/paistar250/paistar-blog/tree/blog-v1)。如需回退，先在本地以该标签检查旧版本，再对工具平台上线提交执行 `git revert` 并推送 `main`；Actions 会重新发布旧站。操作前检查之后的提交，避免一并撤销新的内容。
+Markdown 内链使用相对路径，比如 `../../about/`。MDX 可导入 Astro 组件。图片放在 `src/assets/`，使用 `astro:assets` 的 `Image` 组件生成优化格式和尺寸，并为图片写有意义的 `alt`。示例见 `astro-static-site.mdx`。
+
+## 修改外观与资料
+
+`src/data/site.ts` 管理站名、作者、介绍、导航及公开联系地址。首页卡片在 `src/pages/index.astro`，文章阅读样式在 `src/styles/article.css`，全局明暗主题在 `src/styles/global.css`。关于页和联系页分别位于 `src/pages/about.astro` 与 `src/pages/contact.astro`。所有卡片和导航都应指向真实内容。
+
+主题首次加载时在 HTML 头部读取 `paistar-theme`，避免闪烁。未选择时跟随系统颜色偏好；切换会记住选择。系统偏好减少动画时，动画与平滑滚动会关闭。
+
+## 本地演示账号
+
+`/signup/` 和 `/login/` 只演示浏览器本地状态。账号记录保存在当前浏览器的 `localStorage`；密码使用随机盐与 PBKDF2 SHA-256 派生校验值，不保存明文。勾选“记住登录”时登录状态保存在 `localStorage`，否则保存在 `sessionStorage`。退出只清除状态，不删除演示账号。登录页连续点小猫 5 次可进入临时访客演示。
+
+**本地演示不用于保护内容。** 浏览器数据可以被本机用户查看或删除，账号不跨设备同步，也没有服务端身份验证。所有博客文章对未登录访客公开。不要把真实常用密码输入演示表单，不要在前端放密钥。若以后需要真实账户、私密文章或评论，必须另接后端并重新设计权限与隐私说明。
+
+## 部署与回退
+
+`.github/workflows/deploy.yml` 在推送 `main` 后执行 `npm ci`、类型检查、静态构建、链接审计，再用 GitHub Pages artifact 部署。GitHub 仓库 **Settings → Pages → Build and deployment → Source** 应为 **GitHub Actions**；Custom domain 为 `paistar.eu.cc`。Cloudflare 根域 A 记录指向 GitHub Pages 的四个地址：`185.199.108.153`、`185.199.109.153`、`185.199.110.153`、`185.199.111.153`。域名证书由 GitHub Pages 为自定义域名签发；Cloudflare 代理如启用，SSL/TLS 应使用 Full (strict)。
+
+发布前的工具台版本保存在 Git 标签 `tools-v2`，更早的 Astro 博客保存在 `blog-v1`。需要回退时，从对应标签创建修复分支并重新发布，不要删除仓库或直接删代码。
+
+## 静态功能
+
+首页、文章、分类、标签、归档、Pagefind 站内搜索、文章目录、阅读进度、前后篇、相关文章、代码高亮、深浅主题、手机布局；canonical、分享卡、BlogPosting 结构化数据、RSS、站点地图、robots.txt；图片优化、跳到正文、键盘焦点、PWA 清单、已访问页面缓存及离线回退页。登录演示仅保存在浏览器中。

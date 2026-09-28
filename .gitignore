@@ -1,13 +1,9 @@
 node_modules/
-.next/
-out/
 dist/
 .astro/
-*.log
 .DS_Store
+*.log
+
 .qa/
-.ref-chrome*/
-ref-*.png
-ref-*.jpg
-AGENTS.md
-CLAUDE.md
+out/
+.next/

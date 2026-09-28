@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/url';
+import '../styles/auth.css';
+---
+<BaseLayout title="注册演示账号" description="在此浏览器创建本地演示账号。文章公开可读，无需注册。">
+  <div class="auth-wrap">
+    <div class="auth-art"><span class="art-mark">PAISTAR / PERSONAL JOURNAL</span><div class="auth-orbit" aria-hidden="true"></div><div><h1>留一个名字，<br />继续逛逛。</h1><p>这只是浏览器里的演示身份。喜欢一篇文章，就直接读；不注册也完全可以。</p></div><div class="art-foot"><span>YOU ARE WELCOME HERE</span><span>✳</span></div></div>
+    <section class="auth-form-panel" aria-labelledby="signup-heading"><span class="eyebrow">A SMALL HELLO</span><h2 id="signup-heading">创建本地演示账号<span class="accent-dot">.</span></h2><p class="lead">演示密码经加盐密钥派生后保存在浏览器中。</p>
+      <form class="auth-form" data-signup><label>昵称<input name="name" type="text" autocomplete="nickname" minlength="2" maxlength="24" placeholder="希望我怎么称呼你" required /></label><label>邮箱<input name="email" type="email" autocomplete="username" placeholder="name@example.com" required /></label><label>密码<input name="password" type="password" autocomplete="new-password" minlength="8" placeholder="至少 8 个字符" required /></label><label>确认密码<input name="confirm" type="password" autocomplete="new-password" minlength="8" placeholder="再次输入密码" required /></label><button class="button auth-submit" type="submit">创建演示账号 ↗</button><p class="auth-status" role="alert" aria-live="polite"></p></form>
+      <p class="auth-switch">已有演示账号？<a href={withBase('/login/')}>去登录 ↗</a></p>
+      <p class="auth-disclosure"><strong>本地演示，不用于保护内容。</strong> 账号与登录状态只存于当前浏览器，不会同步，也不应使用常用密码。所有<a href={withBase('/archive/')}>文章公开阅读</a>。</p>
+    </section>
+  </div>
+  <script>
+    import { register } from '../lib/demo-auth';
+    const form=document.querySelector<HTMLFormElement>('[data-signup]');
+    const status=document.querySelector<HTMLElement>('.auth-status');
+    form?.addEventListener('submit',async event=>{event.preventDefault();if(!status)return;const data=new FormData(form);const password=String(data.get('password')||'');if(password!==data.get('confirm')){status.textContent='两次输入的密码不一致。';return}const button=form.querySelector<HTMLButtonElement>('button[type=submit]');if(button)button.disabled=true;status.textContent='正在创建…';try{await register(String(data.get('name')||''),String(data.get('email')||''),password);location.href='/login/?registered=1'}catch(error){status.textContent=error instanceof Error?error.message:'注册失败，请重试。';if(button)button.disabled=false}});
+  </script>
+</BaseLayout>

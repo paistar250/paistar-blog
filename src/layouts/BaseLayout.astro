@@ -1,0 +1,82 @@
+---
+import { site } from '../data/site';
+import { withBase } from '../lib/url';
+import '../styles/global.css';
+
+interface Props { title?: string; description?: string; image?: string; type?: 'website' | 'article'; canonicalPath?: string; schema?: Record<string, unknown>; }
+const { title = site.title, description = site.description, image = '/og.png', type = 'website', canonicalPath = Astro.url.pathname, schema } = Astro.props;
+const fullTitle = title === site.title ? title : `${title} · ${site.title}`;
+const canonical = new URL(withBase(canonicalPath), Astro.site).toString();
+const socialImage = new URL(withBase(image), Astro.site).toString();
+const jsonLd = schema ? JSON.stringify(schema).replace(/</g, '\\u003c') : '';
+const path = Astro.url.pathname;
+---
+<!doctype html>
+<html lang="zh-CN" data-theme="dark" data-sw-url={withBase('/service-worker.js')}>
+  <head>
+    <meta charset="utf-8" />
+    <script is:inline>try { const saved = localStorage.getItem('paistar-theme'); document.documentElement.dataset.theme = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); } catch { document.documentElement.dataset.theme = 'dark'; }</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111216" />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="manifest" href={withBase('/manifest.webmanifest')} />
+    <link rel="alternate" type="application/rss+xml" title={`${site.title} RSS`} href={withBase('/rss.xml')} />
+    <link rel="canonical" href={canonical} />
+    <meta name="description" content={description} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <title>{fullTitle}</title>
+    {schema && <script type="application/ld+json" set:html={jsonLd} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <header class="site-header glass">
+      <div class="header-inner shell">
+        <a class="brand" href={withBase('/')} aria-label={`${site.title}，返回首页`}><span class="brand-symbol" aria-hidden="true"><span></span><span></span></span><span>Paistar<span class="brand-suffix"> / 手记</span></span></a>
+        <nav class="desktop-nav" aria-label="主导航">
+          {site.nav.map((item) => <a href={withBase(item.href)} class:list={{ active: item.href === '/' ? path === '/' : path.startsWith(item.href) }} aria-current={(item.href === '/' ? path === '/' : path.startsWith(item.href)) ? 'page' : undefined}>{item.label}</a>)}
+        </nav>
+        <div class="header-actions">
+          <a class="icon-button" href={withBase('/search/')} aria-label="搜索文章" title="搜索文章"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></a>
+          <button class="icon-button theme-toggle" type="button" aria-label="切换白天或黑夜模式" title="切换白天或黑夜模式"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z"/></svg></button>
+          <a class="account-link" href={withBase('/login/')} data-account-link>登录演示</a>
+          <button class="logout-button" type="button" data-logout hidden>退出</button>
+          <button class="icon-button menu-toggle" type="button" aria-label="展开菜单" aria-expanded="false" aria-controls="mobile-nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
+        </div>
+      </div>
+      <nav id="mobile-nav" class="mobile-nav glass" aria-label="移动端导航" hidden>{site.nav.map((item) => <a href={withBase(item.href)}>{item.label}</a>)}<a href={withBase('/search/')}>搜索</a><a href={withBase('/login/')} data-mobile-account>登录演示</a></nav>
+    </header>
+    <main id="main"><slot /></main>
+    <footer class="site-footer"><div class="shell footer-inner"><div><a class="footer-brand" href={withBase('/')}>Paistar 手记 <span aria-hidden="true">✳</span></a><p>写下过程，也保留问题。</p></div><div class="footer-links"><a href={withBase('/archive/')}>归档</a><a href={withBase('/about/')}>关于</a><a href={withBase('/rss.xml')}>RSS</a><a href={withBase('/contact/')}>联系</a></div><small>© {new Date().getFullYear()} {site.author} · 所有文章公开阅读 · 本地账号仅供演示</small></div></footer>
+    <script>
+      import { getSession, logout } from '../lib/demo-auth';
+      const root = document.documentElement;
+      document.querySelector<HTMLButtonElement>('.theme-toggle')?.addEventListener('click', () => {
+        root.classList.add('theme-changing');
+        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = next;
+        try { localStorage.setItem('paistar-theme', next); } catch { /* Local storage can be disabled. */ }
+        window.setTimeout(() => root.classList.remove('theme-changing'), 550);
+      });
+      const menu = document.querySelector<HTMLButtonElement>('.menu-toggle');
+      const mobileNav = document.querySelector<HTMLElement>('#mobile-nav');
+      menu?.addEventListener('click', () => { if (!mobileNav) return; mobileNav.hidden = !mobileNav.hidden; menu.setAttribute('aria-expanded', String(!mobileNav.hidden)); });
+      const session = getSession();
+      const account = document.querySelector<HTMLAnchorElement>('[data-account-link]');
+      const mobileAccount = document.querySelector<HTMLAnchorElement>('[data-mobile-account]');
+      const logoutButton = document.querySelector<HTMLButtonElement>('[data-logout]');
+      if (session) { if (account) account.textContent = `你好，${session.name}`; if (mobileAccount) mobileAccount.textContent = `你好，${session.name}`; if (logoutButton) logoutButton.hidden = false; }
+      logoutButton?.addEventListener('click', () => { logout(); location.href = '/'; });
+      if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register(root.dataset.swUrl || '/service-worker.js').catch(() => {}));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+---
+import type { Post } from '../lib/blog';
+import { formatShortDate, postUrl, termSlug } from '../lib/blog';
+import { withBase } from '../lib/url';
+interface Props { post: Post; index?: number; }
+const { post, index = 0 } = Astro.props;
+---
+<article class="post-card" style={`--card-index:${index}`}>
+  <div class="post-card-top"><a class="eyebrow-link" href={withBase(`/categories/${termSlug(post.data.category)}/`)}>{post.data.category}</a><time datetime={post.data.date.toISOString()}>{formatShortDate(post.data.date)}</time></div>
+  <h3><a href={withBase(postUrl(post))}>{post.data.title}</a></h3>
+  <p>{post.data.description}</p>
+  <div class="post-card-bottom"><span>{post.data.readingMinutes ?? 5} 分钟阅读</span><a href={withBase(postUrl(post))} aria-label={`阅读《${post.data.title}》`}>阅读全文 <span aria-hidden="true">↗</span></a></div>
+</article>
