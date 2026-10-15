@@ -60,8 +60,8 @@ export async function login(email: string, password: string, remember: boolean):
   return session;
 }
 
-export function enterCatDemo(): DemoSession {
-  const session = { email: '', name: '喵友', guest: true };
+export function enterGuestDemo(): DemoSession {
+  const session = { email: '', name: '访客', guest: true };
   logout();
   sessionStorage.setItem(SESSION, JSON.stringify(session));
   return session;

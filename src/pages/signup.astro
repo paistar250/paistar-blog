@@ -1,14 +1,14 @@
 ---
 import AuthLayout from '../layouts/AuthLayout.astro';
 ---
-<AuthLayout title="注册"><div class="auth-stamp" aria-hidden="true"><img src="/stickers/plant.svg" alt="" width="48" height="48"/></div><h1>创建账号</h1>
+<AuthLayout title="注册"><div class="auth-title"><div><span class="auth-heading-note">A NEW CHAPTER</span><h1>创建账号</h1></div><span class="auth-seal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4c3-1 5 0 8 2 3-2 5-3 8-2v14c-3-1-5 0-8 2-3-2-5-3-8-2V4Z"/><path d="M12 6v14"/></svg></span></div>
 <form class="auth-form auth-form-signup" data-signup>
 <label>昵称<input name="name" type="text" autocomplete="nickname" minlength="2" maxlength="24" placeholder="怎么称呼你" required/></label>
 <label>邮箱<input name="email" type="email" autocomplete="username" placeholder="you@example.com" required/></label>
 <label>密码<input name="password" type="password" autocomplete="new-password" minlength="8" placeholder="至少 8 个字符" required/></label>
 <label>确认密码<input name="confirm" type="password" autocomplete="new-password" minlength="8" placeholder="再次输入密码" required/></label>
-<button class="button auth-submit" type="submit">注册</button><p class="auth-status" role="status" aria-live="polite"></p>
-</form><p class="auth-switch">已有账号？<a href="/login/">登录</a></p><a class="auth-reading" href="/journal/">直接阅读 →</a>
+<button class="button auth-submit" type="submit">注册<span aria-hidden="true">→</span></button><p class="auth-status" role="status" aria-live="polite"></p>
+</form><p class="auth-switch">已有账号？<a href="/login/">登录</a></p><div class="auth-divider" aria-hidden="true"></div><a class="auth-reading" href="/journal/">直接阅读 →</a>
 <script>
 import { register } from '../lib/demo-auth';
 const form=document.querySelector<HTMLFormElement>('[data-signup]');

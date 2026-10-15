@@ -38,3 +38,5 @@ draft: false
 登录账号仅保存于当前浏览器，文章公开可读。
 
 贴纸：[OpenMoji](https://openmoji.org/)（[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)）。场景：[Studio Ghibli](https://www.ghibli.jp/works/)。
+
+字体：Noto Sans SC / Noto Serif SC（SIL Open Font License），通过 Fontsource 在本站托管。

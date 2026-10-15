@@ -1,18 +1,46 @@
 ---
+import { Image } from 'astro:assets';
 import ThemeInit from '../components/ThemeInit.astro';
 import ThemeButton from '../components/ThemeButton.astro';
-import StickerScene from '../components/StickerScene.astro';
+import { art } from '../data/art';
 import '../styles/global.css';
 import '../styles/auth.css';
 interface Props { title:string; }
 const {title}=Astro.props;
 ---
-<!doctype html><html lang="zh-CN" data-theme="dark"><head><meta charset="utf-8"/><ThemeInit/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#20262c"/><meta name="robots" content="noindex,follow"/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><title>{title} · Paistar 手记</title></head>
-<body><main class="auth-page"><div class="auth-visual"><StickerScene/></div><a class="auth-brand" href="/journal/"><span class="brand-mark">P.</span>Paistar</a><div class="auth-controls"><button class="icon-button auth-info-button" type="button" aria-label="账号说明" title="账号说明" data-account-info>?</button><ThemeButton/></div><section class="auth-panel"><div class="auth-inner"><slot/></div></section></main>
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head><meta charset="utf-8"/><ThemeInit/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#1b292d"/><meta name="robots" content="noindex,follow"/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><title>{title} · Paistar 手记</title></head>
+<body>
+<a class="skip-link" href="#auth-form-panel">跳到登录表单</a>
+<main class="auth-page">
+  <div class="auth-landscape" aria-hidden="true">
+    <Image class="landscape-day" src={art.design} alt="" width={2200} height={1400} widths={[700,1400,2200]} sizes="100vw" format="webp" quality={86} loading="eager" fetchpriority="high"/>
+    <Image class="landscape-night" src={art.hello} alt="" width={2200} height={1400} widths={[700,1400,2200]} sizes="100vw" format="webp" quality={86} loading="eager" fetchpriority="high"/>
+  </div>
+  <a class="auth-brand" href="/journal/"><span class="auth-brand-symbol">P.</span><span>Paistar <small>手记</small></span></a>
+  <div class="auth-controls"><button class="icon-button auth-info-button" type="button" aria-label="账号说明" title="账号说明" data-account-info>?</button><ThemeButton/></div>
+  <div class="auth-composition">
+    <section class="auth-editorial" aria-label="Paistar 手记"><span class="auth-edition">PAISTAR / JOURNAL</span><h2>把日常，<br/>写成故事。</h2><a href="/journal/" class="editorial-reading">翻开手记 <span aria-hidden="true">↗</span></a></section>
+    <section id="auth-form-panel" class="auth-panel"><div class="auth-inner"><slot/></div></section>
+  </div>
+  <div class="auth-colophon" aria-hidden="true"><span>NOTES ON A QUIET DAY</span><span>© {new Date().getFullYear()} PAISTAR</span></div>
+</main>
 <dialog class="account-dialog" aria-labelledby="account-help-heading"><h2 id="account-help-heading">关于账号</h2><p>这是浏览器本地账号，不用于保护内容。密码经加盐校验后保存，不会上传。文章始终公开，清除浏览器数据会移除账号。</p><form method="dialog"><button class="button" type="submit">知道了</button></form></dialog>
 <script>
 const dialog=document.querySelector<HTMLDialogElement>('.account-dialog');
 document.querySelector('[data-account-info]')?.addEventListener('click',()=>dialog?.showModal());
 dialog?.addEventListener('click',event=>{if(event.target===dialog){const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close()}});
 document.querySelectorAll<HTMLButtonElement>('[data-password-toggle]').forEach(button=>button.addEventListener('click',()=>{const input=button.parentElement?.querySelector<HTMLInputElement>('input');if(input){input.type=input.type==='password'?'text':'password';button.setAttribute('aria-label',input.type==='password'?'显示密码':'隐藏密码')}}));
-</script></body></html>
+const scene=document.querySelector<HTMLElement>('.auth-landscape');
+const page=document.querySelector<HTMLElement>('.auth-page');
+const motion=matchMedia('(prefers-reduced-motion: reduce)');
+const pointer=matchMedia('(hover: hover) and (pointer: fine)');
+let frame=0;
+const reset=()=>{cancelAnimationFrame(frame);scene?.style.removeProperty('--scene-x');scene?.style.removeProperty('--scene-y')};
+page?.addEventListener('pointermove',event=>{if(!scene||motion.matches||!pointer.matches)return;cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{scene.style.setProperty('--scene-x',((event.clientX/innerWidth-.5)*10)+'px');scene.style.setProperty('--scene-y',((event.clientY/innerHeight-.5)*8)+'px')})},{passive:true});
+page?.addEventListener('pointerleave',reset);
+motion.addEventListener('change',reset);
+pointer.addEventListener('change',reset);
+</script>
+</body></html>

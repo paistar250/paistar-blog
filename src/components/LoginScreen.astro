@@ -1,19 +1,19 @@
 ---
 import AuthLayout from '../layouts/AuthLayout.astro';
 ---
-<AuthLayout title="登录"><button class="cat-secret" type="button" data-secret-cat aria-label="摸摸小猫" title="摸摸小猫"><img src="/stickers/cat-ink.svg" alt="" width="48" height="48"/></button><h1>欢迎回来</h1>
+<AuthLayout title="登录"><div class="auth-title"><div><span class="auth-heading-note">GOOD TO SEE YOU</span><h1>欢迎回来</h1></div><button class="auth-seal" type="button" data-secret-entry aria-label="Paistar 标记">P.</button></div>
 <form class="auth-form" data-login><label class="email-label">邮箱<div class="input-wrap"><input name="email" type="email" autocomplete="username" placeholder="you@example.com" required/></div></label>
 <label>密码<div class="input-wrap"><input name="password" class="password-field" type="password" autocomplete="current-password" placeholder="输入密码" required/><button class="password-toggle" type="button" data-password-toggle aria-label="显示密码"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></label>
-<label class="remember"><input name="remember" type="checkbox"/>记住我</label><button class="button auth-submit" type="submit">登录</button><p class="auth-status" role="status" aria-live="polite"></p></form>
-<p class="auth-switch">还没有账号？<a href="/signup/">注册</a></p><a class="auth-reading" href="/journal/">直接阅读 →</a>
+<label class="remember"><input name="remember" type="checkbox"/>记住我</label><button class="button auth-submit" type="submit">登录<span aria-hidden="true">→</span></button><p class="auth-status" role="status" aria-live="polite"></p></form>
+<p class="auth-switch">还没有账号？<a href="/signup/">注册</a></p><div class="auth-divider" aria-hidden="true"></div><a class="auth-reading" href="/journal/">直接阅读 →</a>
 <script>
-import { login,getSession,enterCatDemo } from '../lib/demo-auth';
+import { login,getSession,enterGuestDemo } from '../lib/demo-auth';
 if(getSession())location.replace('/journal/');
 const form=document.querySelector<HTMLFormElement>('[data-login]');
 const status=document.querySelector<HTMLElement>('.auth-status');
 if(new URLSearchParams(location.search).has('registered')&&status)status.textContent='注册成功，请登录。';
 form?.addEventListener('submit',async event=>{event.preventDefault();if(!status)return;const data=new FormData(form);const button=form.querySelector<HTMLButtonElement>('[type=submit]');if(button)button.disabled=true;status.textContent='';try{await login(String(data.get('email')||''),String(data.get('password')||''),data.get('remember')==='on');location.href='/journal/'}catch(error){status.textContent=error instanceof Error?error.message:'请重试';if(button)button.disabled=false}});
-let taps=0;const cat=document.querySelector<HTMLButtonElement>('[data-secret-cat]');
-cat?.addEventListener('click',()=>{cat.classList.remove('tapped');void cat.offsetWidth;cat.classList.add('tapped');if(++taps===5){try{enterCatDemo();location.href='/journal/'}catch{if(status)status.textContent='请允许浏览器保存本地状态。'}}});
+let taps=0;const seal=document.querySelector<HTMLButtonElement>('[data-secret-entry]');
+seal?.addEventListener('click',()=>{seal.classList.remove('tapped');void seal.offsetWidth;seal.classList.add('tapped');if(++taps===5){try{enterGuestDemo();location.href='/journal/'}catch{if(status)status.textContent='请允许浏览器保存本地状态。'}}});
 </script>
 </AuthLayout>
