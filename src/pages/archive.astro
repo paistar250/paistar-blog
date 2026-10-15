@@ -1,12 +1,11 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getPosts, formatShortDate, postUrl } from '../lib/blog';
-import { withBase } from '../lib/url';
-const posts = await getPosts();
-const years = [...new Set(posts.map((post) => post.data.date.getFullYear()))];
+import PageHeader from '../components/PageHeader.astro';
+import { getPosts,formatShortDate,postUrl } from '../lib/blog';
+import { art } from '../data/art';
+const posts=await getPosts();
+const years=[...new Set(posts.map(post=>post.data.date.getFullYear()))];
 ---
-<BaseLayout title="文章归档" description="按时间翻阅 Paistar 手记的全部文章。">
-  <div class="shell page-hero"><span class="eyebrow">ALL STORIES</span><h1>文章归档<span class="accent-dot">.</span></h1><p>按时间慢慢回看。这里收藏所有已发表的文字，共 {posts.length} 篇。</p></div>
-  <div class="narrow archive-list">{years.map((year) => <section aria-labelledby={`year-${year}`}><h2 id={`year-${year}`}>{year}<span> / {posts.filter((post) => post.data.date.getFullYear() === year).length} 篇</span></h2>{posts.filter((post) => post.data.date.getFullYear() === year).map((post) => <a class="archive-row" href={withBase(postUrl(post))}><time datetime={post.data.date.toISOString()}>{formatShortDate(post.data.date)}</time><span>{post.data.title}</span><span class="row-arrow" aria-hidden="true">↗</span></a>)}</section>)}</div>
-</BaseLayout>
-<style>.accent-dot{color:var(--warm)}.archive-list section+section{margin-top:52px}.archive-list h2{margin:0 0 12px;font-family:Georgia,serif;font-size:2.2rem}.archive-list h2 span{color:var(--muted);font-family:inherit;font-size:.8rem;font-weight:400}.archive-row{display:grid;grid-template-columns:115px 1fr 20px;gap:16px;align-items:center;padding:21px 2px;border-top:1px solid var(--line)}.archive-row:last-child{border-bottom:1px solid var(--line)}.archive-row time{color:var(--muted);font-size:.81rem}.archive-row>span:nth-child(2){font-weight:650}.row-arrow{color:var(--accent)}@media(max-width:600px){.archive-row{grid-template-columns:1fr 20px;gap:3px}.archive-row time{grid-column:1/-1}}</style>
+<BaseLayout title="归档"><PageHeader title="🗂️ 文章归档" subtitle={posts.length+' 篇记录'}/><div class="narrow panel archive-list">{years.map(year=><section aria-labelledby={'year-'+year}><h2 id={'year-'+year}>{year}<small>{posts.filter(post=>post.data.date.getFullYear()===year).length} 篇</small></h2>{posts.filter(post=>post.data.date.getFullYear()===year).map(post=><a class="archive-row" href={postUrl(post)}><Image src={art[post.data.cover]} alt="" width={160} height={110} format="webp"/><span><time datetime={post.data.date.toISOString()}>{formatShortDate(post.data.date)}</time><strong>{post.data.title}</strong></span><b>→</b></a>)}</section>)}</div></BaseLayout>
+<style>.archive-list h2{display:flex;align-items:center;gap:14px;font-size:1.6rem;font-weight:600;margin:0 0 15px;scroll-margin-top:120px}.archive-list h2 small{font-size:.75rem;color:var(--muted);font-weight:400}.archive-list section+section{margin-top:40px}.archive-row{display:grid;grid-template-columns:82px 1fr 20px;align-items:center;gap:19px;padding:16px 0;border-top:1px solid var(--line)}.archive-row>img{width:82px;height:57px;object-fit:cover;border-radius:9px}.archive-row time{display:block;font-size:.7rem;color:var(--muted)}.archive-row strong{display:block;font-size:.92rem;font-weight:550;line-height:1.6;margin-top:3px}.archive-row b{color:var(--accent);font-weight:400}@media(max-width:560px){.archive-row{grid-template-columns:65px 1fr;gap:13px}.archive-row>img{width:65px;height:53px}.archive-row b{display:none}.archive-row strong{font-size:.85rem}}</style>

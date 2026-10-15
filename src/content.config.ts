@@ -15,6 +15,7 @@ const posts = defineCollection({
     featured: z.boolean().default(false),
     pinned: z.boolean().default(false),
     readingMinutes: z.number().positive().optional(),
+    cover: z.enum(['hello','coding','reading','life','design','notes']).default('notes'),
   }),
 });
 

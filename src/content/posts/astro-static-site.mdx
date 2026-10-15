@@ -1,19 +1,20 @@
 ---
-title: 用 Astro 把博客做得轻一点
+title: 让博客轻一点
 description: 选择静态架构、组织文章内容，以及让页面把注意力还给文字。
 date: 2026-09-20
 category: 技术札记
 tags: [Astro, 前端, Markdown]
 featured: true
 readingMinutes: 7
+cover: coding
 ---
 
 import { Image } from 'astro:assets';
-import desk from '../../assets/desk.png';
+import desk from '../../assets/scenes/reading.jpg';
 
 网站不一定需要一台始终在线的服务器。对于以文章为主的个人博客，构建时生成 HTML，往往就足够了。
 
-<Image src={desk} alt="一张以书桌、窗光和植物为主题的抽象插画" widths={[720, 1200]} sizes="(max-width: 720px) 100vw, 720px" format="webp" loading="lazy" class="article-image" />
+<Image src={desk} alt="夜晚书桌与阅读空间的场景插画" widths={[720, 1200]} sizes="(max-width: 720px) 100vw, 720px" format="webp" loading="lazy" class="article-image" />
 
 ## 静态网站的边界
 

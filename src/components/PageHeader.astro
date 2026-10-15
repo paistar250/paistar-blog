@@ -1,0 +1,7 @@
+---
+import { Image } from 'astro:assets';
+import { art,artAlts,type ArtKey } from '../data/art';
+interface Props { title:string; subtitle?:string; artwork?:ArtKey; }
+const {title,subtitle,artwork='notes'}=Astro.props;
+---
+<div class="shell page-heading"><Image src={art[artwork]} alt={artAlts[artwork]} width={1600} height={480} widths={[600,1000,1600]} sizes="(max-width:760px) 100vw,1200px" format="webp" quality={85} loading="eager"/><div class="page-heading-copy"><span class="eyebrow">PAISTAR JOURNAL</span><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</div></div>

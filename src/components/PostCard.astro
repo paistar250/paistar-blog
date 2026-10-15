@@ -1,13 +1,15 @@
 ---
+import { Image } from 'astro:assets';
 import type { Post } from '../lib/blog';
-import { formatShortDate, postUrl, termSlug } from '../lib/blog';
+import { formatShortDate,postUrl,termSlug } from '../lib/blog';
+import { art,artAlts } from '../data/art';
 import { withBase } from '../lib/url';
 interface Props { post: Post; index?: number; }
-const { post, index = 0 } = Astro.props;
+const { post }=Astro.props;
+const key=post.data.cover;
 ---
-<article class="post-card" style={`--card-index:${index}`}>
-  <div class="post-card-top"><a class="eyebrow-link" href={withBase(`/categories/${termSlug(post.data.category)}/`)}>{post.data.category}</a><time datetime={post.data.date.toISOString()}>{formatShortDate(post.data.date)}</time></div>
-  <h3><a href={withBase(postUrl(post))}>{post.data.title}</a></h3>
-  <p>{post.data.description}</p>
-  <div class="post-card-bottom"><span>{post.data.readingMinutes ?? 5} 分钟阅读</span><a href={withBase(postUrl(post))} aria-label={`阅读《${post.data.title}》`}>阅读全文 <span aria-hidden="true">↗</span></a></div>
+<article class="post-card">
+<a class="post-card-cover" href={withBase(postUrl(post))} aria-label={'阅读《'+post.data.title+'》'}><Image src={art[key]} alt={artAlts[key]} width={800} height={440} widths={[400,800]} sizes="(max-width: 560px) 100vw, 420px" format="webp" quality={82}/>{post.data.pinned&&<span class="post-badge">📌 置顶</span>}</a>
+<div class="post-card-content"><div class="post-card-top"><a href={withBase('/categories/'+termSlug(post.data.category)+'/')}>{post.data.category}</a><time datetime={post.data.date.toISOString()}>🗓 {formatShortDate(post.data.date)}</time></div>
+<h3><a href={withBase(postUrl(post))}>{post.data.title}</a></h3><p>{post.data.description}</p><div class="post-card-bottom"><span>☕ {post.data.readingMinutes??5} 分钟</span><a href={withBase(postUrl(post))}>阅读全文 →</a></div></div>
 </article>

@@ -5,6 +5,7 @@ date: 2026-09-12
 category: 读书笔记
 tags: [阅读, 写作]
 readingMinutes: 5
+cover: reading
 ---
 
 合上书的时候，最先忘掉的常常是细节，最后留下来的却可能只是一个问题。

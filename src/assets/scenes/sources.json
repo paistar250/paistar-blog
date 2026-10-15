@@ -1,0 +1,34 @@
+{
+  "provider": "Studio Ghibli",
+  "notice": "https://www.ghibli.jp/info/013344/",
+  "images": {
+    "hello": {
+      "url": "https://www.ghibli.jp/gallery/marnie021.jpg",
+      "work": "When Marnie Was There"
+    },
+    "coding": {
+      "url": "https://www.ghibli.jp/gallery/kokurikozaka012.jpg",
+      "work": "From Up on Poppy Hill"
+    },
+    "reading": {
+      "url": "https://www.ghibli.jp/gallery/marnie023.jpg",
+      "work": "When Marnie Was There"
+    },
+    "life": {
+      "url": "https://www.ghibli.jp/gallery/kokurikozaka049.jpg",
+      "work": "From Up on Poppy Hill"
+    },
+    "design": {
+      "url": "https://www.ghibli.jp/gallery/karigurashi001.jpg",
+      "work": "Arrietty"
+    },
+    "notes": {
+      "url": "https://www.ghibli.jp/gallery/marnie003.jpg",
+      "work": "When Marnie Was There"
+    },
+    "hero": {
+      "url": "https://www.ghibli.jp/gallery/chihiro043.jpg",
+      "work": "Spirited Away"
+    }
+  }
+}

@@ -1,4 +1,3 @@
-/** Browser-only demo identity. It never gates posts or claims to secure data. */
 const ACCOUNTS = 'paistar-demo-accounts-v1';
 const SESSION = 'paistar-demo-session-v1';
 const ITERATIONS = 180_000;
@@ -34,13 +33,13 @@ export async function register(name: string, email: string, password: string): P
   const normalizedEmail = email.trim().toLowerCase();
   if (normalizedName.length < 2 || normalizedName.length > 24) throw new Error('昵称请填写 2–24 个字符。');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) throw new Error('请输入有效的邮箱格式。');
-  if (password.length < 8) throw new Error('演示密码至少需要 8 个字符。');
+  if (password.length < 8) throw new Error('密码至少需要 8 个字符。');
   const existing = accounts();
   if (existing.some((item) => item.email === normalizedEmail)) throw new Error('这个邮箱已在此浏览器注册。');
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const verifier = await derive(password, salt);
   try { localStorage.setItem(ACCOUNTS, JSON.stringify([...existing, { email: normalizedEmail, name: normalizedName, salt: bytesToBase64(salt), verifier, version: 1 }])); }
-  catch { throw new Error('浏览器未允许本地存储，无法保存演示账号。'); }
+  catch { throw new Error('浏览器未允许本地存储，无法保存账号。'); }
 }
 
 export async function login(email: string, password: string, remember: boolean): Promise<DemoSession> {
@@ -48,7 +47,7 @@ export async function login(email: string, password: string, remember: boolean):
   if (!account) throw new Error('邮箱或密码不正确。');
   let verifier: string;
   try { verifier = await derive(password, base64ToBytes(account.salt)); }
-  catch { throw new Error('演示账号数据已损坏，请清除本站数据后重新注册。'); }
+  catch { throw new Error('账号数据已损坏，请清除本站数据后重新注册。'); }
   const actual = base64ToBytes(verifier);
   const expected = base64ToBytes(account.verifier);
   let difference = actual.length ^ expected.length;
@@ -57,12 +56,12 @@ export async function login(email: string, password: string, remember: boolean):
   const session = { email: account.email, name: account.name, guest: false };
   logout();
   try { (remember ? localStorage : sessionStorage).setItem(SESSION, JSON.stringify(session)); }
-  catch { throw new Error('浏览器未允许存储演示状态。'); }
+  catch { throw new Error('浏览器未允许保存登录状态。'); }
   return session;
 }
 
 export function enterCatDemo(): DemoSession {
-  const session = { email: '', name: '夜航访客', guest: true };
+  const session = { email: '', name: '喵友', guest: true };
   logout();
   sessionStorage.setItem(SESSION, JSON.stringify(session));
   return session;

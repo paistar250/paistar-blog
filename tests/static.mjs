@@ -29,14 +29,18 @@ for (const page of pages) {
     checked++;
   }
 }
-assert.ok(pages.some((page) => page.includes(join('posts', 'a-place-to-return'))));
+assert.ok(pages.some((page) => relative(root,page).startsWith('posts')), 'No article pages were generated');
 assert.ok(existsSync(join(root, 'pagefind', 'pagefind.js')));
 assert.ok(existsSync(join(root, 'sitemap-index.xml')));
 assert.ok(existsSync(join(root, 'rss.xml')));
 assert.ok(existsSync(join(root, 'login', 'index.html')));
 assert.ok(existsSync(join(root, 'signup', 'index.html')));
-const home = readFileSync(join(root, 'index.html'), 'utf8');
-assert.match(home, /刚写下的/);
+const entry = readFileSync(join(root, 'index.html'), 'utf8');
+assert.match(entry, /data-login/);
+assert.match(entry, /直接阅读/);
+assert.doesNotMatch(entry, /登录演示|auth-disclosure/);
+const home = readFileSync(join(root, 'journal', 'index.html'), 'utf8');
+assert.match(home, /最新文章/);
 assert.match(home, /置顶/);
-assert.doesNotMatch(home, /工具台/);
+assert.doesNotMatch(home, /工具台|bento-card/);
 console.log(`Static audit passed: ${pages.length} HTML pages, ${checked} internal links and fragments.`);

@@ -1,0 +1,5 @@
+OpenMoji — https://openmoji.org/
+Source: https://github.com/hfg-gmuend/openmoji/tree/master/color/svg
+License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+Icons: 1F431, 1FAB4, 1F4BB, 2615, 1F680
+Original SVG artwork is unmodified. cat-ink.svg is a recolored variant.

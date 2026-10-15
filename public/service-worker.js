@@ -1,9 +1,9 @@
-const VERSION = 'paistar-blog-v3';
+const VERSION = 'paistar-blog-v4';
 const ROOT = new URL(self.registration.scope).pathname;
 const OFFLINE = `${ROOT}offline/`;
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(VERSION).then((cache) => cache.addAll([ROOT, OFFLINE])));
+  event.waitUntil(caches.open(VERSION).then((cache) => cache.addAll([ROOT, ROOT+'journal/', OFFLINE])));
   self.skipWaiting();
 });
 

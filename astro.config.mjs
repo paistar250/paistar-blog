@@ -10,7 +10,7 @@ export default defineConfig({
   base,
   trailingSlash: 'always',
   output: 'static',
-  integrations: [mdx(), sitemap({ filter: (page) => !/\/(?:offline\/|404\.html)/.test(page) })],
+  integrations: [mdx(), sitemap({ filter: (page) => new URL(page).pathname !== '/' && !/\/(?:offline\/|404\.html|login\/|signup\/)/.test(page) })],
   markdown: {
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },
