@@ -40,3 +40,5 @@ draft: false
 贴纸：[OpenMoji](https://openmoji.org/)（[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)）。场景：[Studio Ghibli](https://www.ghibli.jp/works/)。
 
 字体：Noto Sans SC / Noto Serif SC（SIL Open Font License），通过 Fontsource 在本站托管。
+
+鼠标拖尾：[React Bits · Ribbons](https://github.com/DavidHDev/react-bits/tree/main/src/content/Animations/Ribbons)，许可证保留在 public/credits/。

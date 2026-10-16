@@ -1,0 +1,3 @@
+Ribbons — React Bits by David Haz
+https://github.com/DavidHDev/react-bits/tree/main/src/content/Animations/Ribbons
+Changes: desktop-only wrapper, form and keyboard guards, idle pause, palette and size.

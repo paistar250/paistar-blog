@@ -1,7 +1,6 @@
 ---
 import { Image } from 'astro:assets';
 import ThemeInit from '../components/ThemeInit.astro';
-import BrandMark from '../components/BrandMark.astro';
 import PointerEffects from '../components/PointerEffects.astro';
 import ThemeButton from '../components/ThemeButton.astro';
 import { art } from '../data/art';
@@ -12,7 +11,7 @@ const {title}=Astro.props;
 ---
 <!doctype html>
 <html lang="zh-CN" data-theme="dark">
-<head><meta charset="utf-8"/><ThemeInit/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#1b292d"/><meta name="robots" content="noindex,follow"/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><title>{title} · Paistar 手记</title></head>
+<head><meta charset="utf-8"/><ThemeInit/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#1b292d"/><meta name="robots" content="noindex,follow"/><link rel="icon" href="/favicon.png" type="image/png"/><title>{title} · Paistar 手记</title></head>
 <body>
 <a class="skip-link" href="#auth-form-panel">跳到登录表单</a>
 <main class="auth-page">
@@ -20,7 +19,7 @@ const {title}=Astro.props;
     <Image class="landscape-day" src={art.design} alt="" width={2200} height={1400} widths={[700,1400,2200]} sizes="100vw" format="webp" quality={86} loading="eager" fetchpriority="high"/>
     <Image class="landscape-night" src={art.hello} alt="" width={2200} height={1400} widths={[700,1400,2200]} sizes="100vw" format="webp" quality={86} loading="eager" fetchpriority="high"/>
   </div>
-  <a class="auth-brand" href="/journal/"><BrandMark/><span>Paistar <small>手记</small></span></a>
+  <a class="auth-brand" href="/journal/"><span>Paistar <small>手记</small></span></a>
   <div class="auth-controls"><button class="icon-button auth-info-button" type="button" aria-label="账号说明" title="账号说明" data-account-info>?</button><ThemeButton/></div>
   <div class="auth-composition">
     <section class="auth-editorial" aria-label="Paistar 手记"><span class="auth-edition">PAISTAR / JOURNAL</span><h2>把日常，<br/>写成故事。</h2><a href="/journal/" class="editorial-reading">翻开手记 <span aria-hidden="true">↗</span></a></section>

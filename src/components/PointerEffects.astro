@@ -1,23 +1,4 @@
-<div class="pointer-effects" data-pointer-effects aria-hidden="true" hidden>
-  <span class="pointer-ring"></span><span class="pointer-dot"></span>
-  <span class="pointer-spark"></span><span class="pointer-spark"></span><span class="pointer-spark"></span><span class="pointer-spark"></span><span class="pointer-spark"></span><span class="pointer-spark"></span>
-  <span class="pointer-ripple"></span><span class="pointer-ripple"></span>
-</div>
-<script>
-import '../lib/pointer-effects';
-</script>
-<style is:global>
-.pointer-effects{position:fixed;inset:0;z-index:9999;pointer-events:none!important;overflow:hidden;contain:strict;--pointer-color:#c6dec9;--pointer-spark:#e3b982}
-:root[data-theme=light] .pointer-effects{--pointer-color:#42745f;--pointer-spark:#c28a44}
-.pointer-effects *{pointer-events:none!important}
-.pointer-ring,.pointer-dot,.pointer-spark,.pointer-ripple{position:absolute;left:0;top:0;opacity:0;will-change:transform}
-.pointer-ring{width:28px;height:28px;transition:opacity .18s}
-.pointer-ring:before{content:"";position:absolute;inset:0;border:1px solid var(--pointer-color);border-radius:50%;box-shadow:0 0 0 1px #ffffff24,0 2px 8px #0000000a;transition:transform .25s,background .25s,border-color .25s}
-.pointer-dot{width:4px;height:4px;border-radius:50%;background:var(--pointer-spark);box-shadow:0 0 0 1px #ffffff50;transition:opacity .18s}
-.pointer-effects.is-visible .pointer-ring,.pointer-effects.is-visible .pointer-dot{opacity:.85}
-.pointer-effects[data-mode=link] .pointer-ring:before{transform:scale(1.55);background:color-mix(in srgb,var(--pointer-color) 9%,transparent)}
-.pointer-effects[data-mode=link] .pointer-dot{opacity:0}
-.pointer-spark{width:7px;height:7px;background:var(--pointer-spark);clip-path:polygon(50% 0,63% 37%,100% 50%,63% 63%,50% 100%,37% 63%,0 50%,37% 37%)}
-.pointer-ripple{width:25px;height:25px;border:1px solid var(--pointer-color);border-radius:50%}
-@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.pointer-effects{display:none!important}}
-</style>
+---
+import CursorRibbons from './CursorRibbons';
+---
+<CursorRibbons client:only="react"/>

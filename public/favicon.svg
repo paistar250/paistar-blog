@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-<rect width="64" height="64" rx="20" fill="#F3F2E8"/>
-<path d="M15 22a7 7 0 0 1 7-7h20a7 7 0 0 1 7 7v26H15V22Z" fill="#DBE6D5"/>
-<path d="m15 39 10-12a4 4 0 0 1 6 0l18 21H15v-9Z" fill="#86AB91"/>
-<path d="m15 47 15-11a5 5 0 0 1 6 .2L49 47v1a4 4 0 0 1-4 4H19a4 4 0 0 1-4-4v-1Z" fill="#315E50"/>
-<path class="brand-spark" d="M46 9c.8 5.3 2.7 7.2 8 8-5.3.8-7.2 2.7-8 8-.8-5.3-2.7-7.2-8-8 5.3-.8 7.2-2.7 8-8Z" fill="#DDA25F"/>
-<circle cx="19" cy="19" r="2" fill="#F3F2E8"/>
-</svg>
