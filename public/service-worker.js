@@ -1,4 +1,4 @@
-const VERSION = 'paistar-blog-v4';
+const VERSION = 'paistar-blog-v5';
 const ROOT = new URL(self.registration.scope).pathname;
 const OFFLINE = `${ROOT}offline/`;
 

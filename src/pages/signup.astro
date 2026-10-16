@@ -1,7 +1,8 @@
 ---
 import AuthLayout from '../layouts/AuthLayout.astro';
+import BrandMark from '../components/BrandMark.astro';
 ---
-<AuthLayout title="注册"><div class="auth-title"><div><span class="auth-heading-note">A NEW CHAPTER</span><h1>创建账号</h1></div><span class="auth-seal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4c3-1 5 0 8 2 3-2 5-3 8-2v14c-3-1-5 0-8 2-3-2-5-3-8-2V4Z"/><path d="M12 6v14"/></svg></span></div>
+<AuthLayout title="注册"><div class="auth-title"><div><span class="auth-heading-note">A NEW CHAPTER</span><h1>创建账号</h1></div><span class="auth-seal" aria-hidden="true"><BrandMark/></span></div>
 <form class="auth-form auth-form-signup" data-signup>
 <label>昵称<input name="name" type="text" autocomplete="nickname" minlength="2" maxlength="24" placeholder="怎么称呼你" required/></label>
 <label>邮箱<input name="email" type="email" autocomplete="username" placeholder="you@example.com" required/></label>

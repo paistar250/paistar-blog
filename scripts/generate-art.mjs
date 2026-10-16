@@ -1,5 +1,7 @@
 import sharp from 'sharp';
-const icon='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" rx="130" fill="#1e343a"/><text x="120" y="357" font-family="Georgia,serif" font-style="italic" font-weight="bold" font-size="335" fill="#b4d5d1">P.</text></svg>';
-for(const size of [192,512]) await sharp(Buffer.from(icon)).resize(size,size).png().toFile('public/icon-'+size+'.png');
+import {readFileSync,copyFileSync} from 'node:fs';
+const icon=readFileSync('src/assets/brand-mark.svg');
+copyFileSync('src/assets/brand-mark.svg','public/favicon.svg');
+for(const size of [192,512]) await sharp(icon).resize(size,size).png().toFile('public/icon-'+size+'.png');
 const overlay='<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="#132a3a" opacity=".35"/><text x="600" y="260" text-anchor="middle" fill="white" font-family="Georgia,serif" font-size="23" letter-spacing="7">PAISTAR JOURNAL</text><text x="600" y="365" text-anchor="middle" fill="white" font-family="Microsoft YaHei,sans-serif" font-weight="bold" font-size="75">Paistar 手记</text><text x="600" y="430" text-anchor="middle" fill="#edf3f5" font-family="Microsoft YaHei,sans-serif" font-size="25">技术 · 阅读 · 日常</text></svg>';
 await sharp('src/assets/scenes/hero.jpg').resize(1200,630,{fit:'cover'}).composite([{input:Buffer.from(overlay)}]).png().toFile('public/og.png');

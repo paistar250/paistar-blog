@@ -1,7 +1,8 @@
 ---
 import AuthLayout from '../layouts/AuthLayout.astro';
+import BrandMark from './BrandMark.astro';
 ---
-<AuthLayout title="登录"><div class="auth-title"><div><span class="auth-heading-note">GOOD TO SEE YOU</span><h1>欢迎回来</h1></div><button class="auth-seal" type="button" data-secret-entry aria-label="Paistar 标记">P.</button></div>
+<AuthLayout title="登录"><div class="auth-title"><div><span class="auth-heading-note">GOOD TO SEE YOU</span><h1>欢迎回来</h1></div><button class="auth-seal" type="button" data-secret-entry aria-label="Paistar 标记"><BrandMark/></button></div>
 <form class="auth-form" data-login><label class="email-label">邮箱<div class="input-wrap"><input name="email" type="email" autocomplete="username" placeholder="you@example.com" required/></div></label>
 <label>密码<div class="input-wrap"><input name="password" class="password-field" type="password" autocomplete="current-password" placeholder="输入密码" required/><button class="password-toggle" type="button" data-password-toggle aria-label="显示密码"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></label>
 <label class="remember"><input name="remember" type="checkbox"/>记住我</label><button class="button auth-submit" type="submit">登录<span aria-hidden="true">→</span></button><p class="auth-status" role="status" aria-live="polite"></p></form>

@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import ThemeInit from '../components/ThemeInit.astro';
+import BrandMark from '../components/BrandMark.astro';
+import PointerEffects from '../components/PointerEffects.astro';
 import ThemeButton from '../components/ThemeButton.astro';
 import { art } from '../data/art';
 import '../styles/global.css';
@@ -18,7 +20,7 @@ const {title}=Astro.props;
     <Image class="landscape-day" src={art.design} alt="" width={2200} height={1400} widths={[700,1400,2200]} sizes="100vw" format="webp" quality={86} loading="eager" fetchpriority="high"/>
     <Image class="landscape-night" src={art.hello} alt="" width={2200} height={1400} widths={[700,1400,2200]} sizes="100vw" format="webp" quality={86} loading="eager" fetchpriority="high"/>
   </div>
-  <a class="auth-brand" href="/journal/"><span class="auth-brand-symbol">P.</span><span>Paistar <small>手记</small></span></a>
+  <a class="auth-brand" href="/journal/"><BrandMark/><span>Paistar <small>手记</small></span></a>
   <div class="auth-controls"><button class="icon-button auth-info-button" type="button" aria-label="账号说明" title="账号说明" data-account-info>?</button><ThemeButton/></div>
   <div class="auth-composition">
     <section class="auth-editorial" aria-label="Paistar 手记"><span class="auth-edition">PAISTAR / JOURNAL</span><h2>把日常，<br/>写成故事。</h2><a href="/journal/" class="editorial-reading">翻开手记 <span aria-hidden="true">↗</span></a></section>
@@ -27,7 +29,9 @@ const {title}=Astro.props;
   <div class="auth-colophon" aria-hidden="true"><span>NOTES ON A QUIET DAY</span><span>© {new Date().getFullYear()} PAISTAR</span></div>
 </main>
 <dialog class="account-dialog" aria-labelledby="account-help-heading"><h2 id="account-help-heading">关于账号</h2><p>这是浏览器本地账号，不用于保护内容。密码经加盐校验后保存，不会上传。文章始终公开，清除浏览器数据会移除账号。</p><form method="dialog"><button class="button" type="submit">知道了</button></form></dialog>
+<PointerEffects/>
 <script>
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
 const dialog=document.querySelector<HTMLDialogElement>('.account-dialog');
 document.querySelector('[data-account-info]')?.addEventListener('click',()=>dialog?.showModal());
 dialog?.addEventListener('click',event=>{if(event.target===dialog){const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close()}});
