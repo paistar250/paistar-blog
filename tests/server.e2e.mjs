@@ -124,6 +124,10 @@ try{
  assert.equal(await adminPage.locator('[name=title]').inputValue(),title);
  await adminPage.locator('[data-image-file]').setInputFiles('public/avatar.webp');
  await adminPage.getByText('图片已插入，可修改图片描述。').waitFor();
+ const uploadedImage=(await adminPage.locator('[name=body]').inputValue()).match(/\]\((\/uploads\/[^)]+)\)/)?.[1];
+ assert.ok(uploadedImage,'Uploaded image URL missing');
+ response=await anonymous.request.get(base+uploadedImage);assert.equal(response.status(),200,'Uploaded image cannot be read');
+ assert.match(response.headers()['content-type'],/^image\/webp/);
  await adminPage.locator('[data-toggle-preview]').click();
  await adminPage.locator('[data-preview]').waitFor({state:'visible'});
  assert.equal(await adminPage.evaluate(()=>window.__paistarXss),undefined);

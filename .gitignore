@@ -11,5 +11,5 @@ out/
 .env
 .env.*
 !.env.example
-uploads/
+/uploads/
 public/media/reading.webp
