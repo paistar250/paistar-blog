@@ -1,18 +1,19 @@
 ---
-import { render } from 'astro:content';
+import { getPost } from '../../server/posts';
+import { renderMarkdown } from '../../server/markdown';
 import { Image } from 'astro:assets';
 import { art, artAlts } from '../../data/art';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 import { site } from '../../data/site';
-import { getPosts, postUrl, formatDate, termSlug, relatedPosts, type Post } from '../../lib/blog';
+import { getPosts, postUrl, formatDate, termSlug, relatedPosts } from '../../lib/blog';
 import { withBase } from '../../lib/url';
 import '../../styles/article.css';
 
-interface Props { post: Post; posts: Post[]; }
-export async function getStaticPaths() { const posts = await getPosts(); return posts.map((post) => ({ params: { slug: post.id }, props: { post, posts } })); }
-const { post, posts } = Astro.props;
-const { Content, headings } = await render(post);
+const post = await getPost(Astro.params.slug || '');
+if (!post) return Astro.rewrite('/404');
+const posts = await getPosts();
+const { html, headings } = await renderMarkdown(post.body);
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 const index = posts.findIndex((item) => item.id === post.id);
 const newer = posts[index - 1];
@@ -30,7 +31,7 @@ const schema = { '@context': 'https://schema.org', '@type': 'BlogPosting', headl
       <h1 data-pagefind-meta="title">{post.data.title}</h1>
       <p class="article-deck">{post.data.description}</p>
       <div class="article-meta"><img class="avatar" src="/avatar.webp" alt="" width="36" height="36"/><div><strong>{site.author}</strong><span><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>{post.data.updated && <> · 更新于 {formatDate(post.data.updated)}</>}</span></div><button type="button" class="share-button" aria-label="分享或复制文章链接">分享 ↗</button></div>
-      <div class="article-prose"><Content /></div>
+      <div class="article-prose" set:html={html}/>
       <div class="article-end" aria-hidden="true">✳</div>
       <div class="article-tags" aria-label="文章标签">{post.data.tags.map((tag) => <a class="pill" href={withBase(`/tags/${termSlug(tag)}/`)}># {tag}</a>)}</div>
       <div class="article-prev-next"><div>{newer && <a href={withBase(postUrl(newer))}><small>← 上一篇</small><strong>{newer.data.title}</strong></a>}</div><div>{older && <a href={withBase(postUrl(older))}><small>下一篇 →</small><strong>{older.data.title}</strong></a>}</div></div>

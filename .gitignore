@@ -7,3 +7,9 @@ dist/
 .qa/
 out/
 .next/
+.generated/
+.env
+.env.*
+!.env.example
+uploads/
+public/media/reading.webp

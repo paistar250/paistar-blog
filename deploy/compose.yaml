@@ -1,0 +1,53 @@
+name: paistar-blog
+services:
+  app:
+    image: ${BLOG_IMAGE:?BLOG_IMAGE required}
+    container_name: paistar-blog
+    restart: unless-stopped
+    mem_limit: 1g
+    pids_limit: 256
+    init: true
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    tmpfs: ["/tmp:size=128m,mode=1777"]
+    environment:
+      APP_ORIGIN: https://paistar.eu.cc
+      PREVIEW_ORIGIN: ${PREVIEW_ORIGIN-https://localhost:8443}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: paistar
+      DB_USER: paistar
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD_FILE: /run/secrets/admin_password
+      UPLOAD_DIR: /data/uploads
+      NODE_OPTIONS: --max-old-space-size=768
+    ports: ["127.0.0.1:4321:4321"]
+    volumes: ["/srv/paistar/uploads:/data/uploads"]
+    secrets: [db_password,admin_password]
+    networks: [web,backend]
+  caddy:
+    image: ${CADDY_IMAGE:?CADDY_IMAGE required}
+    container_name: paistar-proxy
+    restart: unless-stopped
+    mem_limit: 256m
+    ports: ["80:80","443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /srv/paistar/caddy/data:/data
+      - /srv/paistar/caddy/config:/config
+    networks: [web]
+    depends_on:
+      app:
+        condition: service_healthy
+networks:
+  web:
+  backend:
+    external: true
+    name: paistar-backend
+secrets:
+  db_password:
+    file: ./secrets/db-password
+  admin_password:
+    file: ./secrets/admin-initial-password

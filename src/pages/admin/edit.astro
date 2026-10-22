@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPost } from '../../server/posts';
+import '../../styles/admin.css';
+import '../../styles/article.css';
+const slug=Astro.url.searchParams.get('post');
+const post=slug?await getPost(slug,true):null;
+if(slug&&!post)return Astro.rewrite('/404');
+const initial=post?{...post.data,slug:post.id,body:post.body,date:post.data.date.toISOString().slice(0,10),version:post.data.updated!.toISOString()}:{slug:'',title:'',description:'',body:'',category:'生活随笔',tags:[],cover:'notes',date:new Date().toISOString().slice(0,10),draft:true,pinned:false,featured:false,version:null};
+const safeInitial=JSON.stringify(initial).replace(/</g,'\\u003c');
+---
+<BaseLayout title={post?'编辑文章':'写文章'}>
+<div class="shell workspace"><div class="workspace-top"><div><span class="workspace-label">ONE NOTE AT A TIME</span><h1>{post?'继续打磨这篇文字。':'从一个念头开始。'}</h1></div><a class="text-link" href="/admin/">← 文章后台</a></div>
+<form id="post-editor"><div class="editor-layout"><section class="workspace-card editor-main">
+<label class="editor-field"><span>文章标题</span><input class="title-input" name="title" placeholder="给这篇文章起个名字" maxlength="160" required/></label>
+<label class="editor-field"><span>摘要</span><textarea name="description" rows="2" maxlength="500" placeholder="用一两句话介绍它" required></textarea></label>
+<div class="editor-toolbar"><div><button type="button" data-wrap="bold" aria-label="插入加粗">B</button><button type="button" data-wrap="heading">H₂</button><button type="button" data-wrap="code">代码</button><label>上传文章<input type="file" accept=".md,.mdx,.markdown" data-import-file hidden/></label><label>插入图片<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" data-image-file hidden/></label></div><button type="button" data-toggle-preview aria-pressed="false">预览</button></div>
+<label class="editor-field" data-editor-field><span class="sr-only">Markdown 正文</span><textarea name="body" class="markdown-input" spellcheck="false" placeholder="## 从这里开始\n\n写下你的故事……" required></textarea></label>
+<div class="article-prose editor-preview" data-preview hidden></div>
+</section><aside class="editor-meta"><section class="workspace-card">
+<label class="editor-field"><span>文章路径</span><input name="slug" pattern="[a-z0-9][a-z0-9-]*" maxlength="120" placeholder="a-quiet-afternoon" required/></label>
+<label class="editor-field"><span>发布日期</span><input name="date" type="date" required/></label>
+<label class="editor-field"><span>分类</span><input name="category" list="category-options" maxlength="48" required/><datalist id="category-options"><option value="技术札记"/><option value="生活随笔"/><option value="读书笔记"/></datalist></label>
+<label class="editor-field"><span>标签，用逗号分隔</span><input name="tags" placeholder="写作, 日常"/></label>
+<label class="editor-field"><span>文章封面</span><select name="cover"><option value="notes">山间书桌</option><option value="hello">落日湖畔</option><option value="coding">安静工作室</option><option value="reading">夜读时分</option><option value="life">绿意日常</option><option value="design">庭院午后</option></select></label>
+<label class="editor-check"><input type="checkbox" name="pinned"/>置顶文章</label><label class="editor-check"><input type="checkbox" name="featured"/>精选文章</label>
+</section><section class="workspace-card"><div class="workspace-actions"><button class="button secondary" type="submit" name="intent" value="draft">存为草稿</button><button class="button" type="submit" name="intent" value="publish">发布文章 →</button></div><p class="form-status" role="status" aria-live="polite"></p><a class="text-link" data-view-post hidden target="_blank" rel="noopener noreferrer">阅读文章 ↗</a><p><small>支持 Markdown 和 YAML 文章信息。MDX 文件可导入 Markdown 部分，不执行脚本或组件代码。</small></p></section></aside></div></form>
+<script type="application/json" is:inline id="editor-initial" set:html={safeInitial}/>
+</div>
+<script>
+import { api } from '../../lib/auth-client';
+const form=document.querySelector<HTMLFormElement>('#post-editor')!;
+const status=document.querySelector<HTMLElement>('.form-status')!;
+const initial=JSON.parse(document.querySelector('#editor-initial')!.textContent!);
+let version:string|null=initial.version;
+let dirty=false;
+let previewing=false;
+const field=(name:string)=>form.elements.namedItem(name) as HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement;
+function fill(data:Record<string,unknown>){for(const key of ['title','description','slug','date','category','cover','body'])if(data[key]!==undefined)field(key).value=String(data[key]);field('tags').value=Array.isArray(data.tags)?data.tags.join(', '):'';for(const key of ['pinned','featured'])(field(key) as HTMLInputElement).checked=data[key]===true;(field('slug') as HTMLInputElement).readOnly=Boolean(version)}
+function notice(message:string,error=false){status.textContent=message;status.dataset.error=String(error)}
+function updateView(draft:boolean,slug:string){const link=document.querySelector<HTMLAnchorElement>('[data-view-post]')!;link.hidden=draft;link.href='/posts/'+slug+'/'}
+fill(initial);if(version)updateView(initial.draft,initial.slug);
+form.addEventListener('input',event=>{if(event.target instanceof HTMLInputElement&&event.target.type==='file')return;dirty=true});
+window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault()}});
+form.addEventListener('submit',async event=>{
+ event.preventDefault();const button=(event as SubmitEvent).submitter as HTMLButtonElement;const draft=button?.value!=='publish';
+ const payload={slug:field('slug').value,title:field('title').value,description:field('description').value,body:field('body').value,category:field('category').value,date:field('date').value,cover:field('cover').value,tags:field('tags').value.split(/[,，]/).map(tag=>tag.trim()).filter(Boolean),pinned:(field('pinned') as HTMLInputElement).checked,featured:(field('featured') as HTMLInputElement).checked,draft,...(version?{version}:{})};
+ const buttons=[...form.querySelectorAll<HTMLButtonElement>('button[type=submit]')];buttons.forEach(item=>item.disabled=true);notice('正在保存…');
+ try{const result=await api<{post:{id:string;data:{updated:string;draft:boolean}}}>(version?'/api/admin/posts/'+payload.slug:'/api/admin/posts/',{method:version?'PUT':'POST',data:payload});version=result.post.data.updated;(field('slug') as HTMLInputElement).readOnly=true;dirty=false;history.replaceState(null,'','/admin/edit/?post='+result.post.id);updateView(result.post.data.draft,result.post.id);notice(draft?'草稿已保存。':'文章已发布，博客首页与搜索已更新。')}
+ catch(error){notice(error instanceof Error?error.message:'保存失败。',true)}finally{buttons.forEach(item=>item.disabled=false)}
+});
+document.querySelector<HTMLInputElement>('[data-import-file]')?.addEventListener('change',async event=>{
+ const input=event.currentTarget as HTMLInputElement;const file=input.files?.[0];if(!file)return;
+ if(version){notice('编辑已有文章时，请直接修改正文；上传文件请新建文章。',true);input.value='';return}
+ if(dirty&&!confirm('导入会替换当前未保存内容，继续吗？')){input.value='';return}
+ try{if(file.size>400000)throw new Error('文章文件不能超过 400 KB。');const result=await api<{post:Record<string,unknown>}>('/api/admin/import',{method:'POST',data:{filename:file.name,content:await file.text()}});fill(result.post);dirty=true;notice('文章已导入，检查信息后保存或发布。')}catch(error){notice(error instanceof Error?error.message:'导入失败。',true)}finally{input.value=''}
+});
+document.querySelector<HTMLInputElement>('[data-image-file]')?.addEventListener('change',async event=>{
+ const input=event.currentTarget as HTMLInputElement;const file=input.files?.[0];if(!file)return;
+ try{if(file.size>7500000)throw new Error('图片不能超过 7.5 MB。');notice('正在优化并上传图片…');const data=new FormData();data.append('file',file);const result=await api<{url:string}>('/api/admin/uploads',{method:'POST',form:data});const textarea=field('body') as HTMLTextAreaElement;textarea.setRangeText('\n![图片描述]('+result.url+')\n',textarea.selectionStart,textarea.selectionEnd,'end');dirty=true;notice('图片已插入，可修改图片描述。')}catch(error){notice(error instanceof Error?error.message:'上传失败。',true)}finally{input.value=''}
+});
+document.querySelector<HTMLButtonElement>('[data-toggle-preview]')?.addEventListener('click',async event=>{
+ const button=event.currentTarget as HTMLButtonElement;const panel=document.querySelector<HTMLElement>('[data-preview]')!;const editor=document.querySelector<HTMLElement>('[data-editor-field]')!;
+ if(!previewing){button.disabled=true;try{const result=await api<{html:string}>('/api/admin/preview',{method:'POST',data:{body:field('body').value}});panel.innerHTML=result.html;panel.hidden=false;editor.hidden=true;previewing=true;button.textContent='返回编辑';button.setAttribute('aria-pressed','true')}catch(error){notice(error instanceof Error?error.message:'预览失败。',true)}finally{button.disabled=false}}
+ else{panel.hidden=true;editor.hidden=false;previewing=false;button.textContent='预览';button.setAttribute('aria-pressed','false')}
+});
+document.querySelectorAll<HTMLButtonElement>('[data-wrap]').forEach(button=>button.addEventListener('click',()=>{const textarea=field('body') as HTMLTextAreaElement;const selected=textarea.value.slice(textarea.selectionStart,textarea.selectionEnd)||'文字';const text=button.dataset.wrap==='bold'?'**'+selected+'**':button.dataset.wrap==='heading'?'\n## '+selected+'\n':'\n```text\n'+selected+'\n```\n';textarea.setRangeText(text,textarea.selectionStart,textarea.selectionEnd,'end');textarea.focus();dirty=true}));
+</script>
+</BaseLayout>

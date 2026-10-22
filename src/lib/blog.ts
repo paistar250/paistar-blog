@@ -1,10 +1,9 @@
-import { getCollection, type CollectionEntry } from 'astro:content';
-
-export type Post = CollectionEntry<'posts'>;
+import { listPosts } from '../server/posts';
+export type { Post } from '../server/posts';
+import type { Post } from '../server/posts';
 
 export async function getPosts(): Promise<Post[]> {
-  return (await getCollection('posts', ({ data }) => !data.draft))
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  return listPosts();
 }
 
 export function postUrl(post: Post): string {
@@ -27,6 +26,10 @@ const slugs: Record<string, string> = {
 
 export function termSlug(term: string): string {
   return slugs[term] || encodeURIComponent(term);
+}
+
+export function decodeTerm(value: string): string {
+  try { return decodeURIComponent(value); } catch { return value; }
 }
 
 export function categories(posts: Post[]) {

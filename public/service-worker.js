@@ -1,31 +1,27 @@
-const VERSION = 'paistar-blog-v6';
-const ROOT = new URL(self.registration.scope).pathname;
-const OFFLINE = `${ROOT}offline/`;
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(VERSION).then((cache) => cache.addAll([ROOT, ROOT+'journal/', OFFLINE])));
+const VERSION='paistar-server-v1';
+const OFFLINE='/offline/';
+self.addEventListener('install',event=>{
+  event.waitUntil(caches.open(VERSION).then(cache=>cache.add(OFFLINE)));
   self.skipWaiting();
 });
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(Promise.all([
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== VERSION).map((key) => caches.delete(key)))),
-    self.clients.claim(),
-  ]));
+self.addEventListener('activate',event=>{
+  event.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==VERSION).map(key=>caches.delete(key)))),self.clients.claim()]));
 });
-
-self.addEventListener('fetch', (event) => {
-  const request = event.request;
-  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
-  if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).then((response) => {
-      if (response.ok) { const copy = response.clone(); caches.open(VERSION).then((cache) => cache.put(request, copy)); }
-      return response;
-    }).catch(async () => (await caches.match(request)) || (await caches.match(OFFLINE))));
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  const url=new URL(request.url);
+  if(request.method!=='GET'||url.origin!==self.location.origin||url.pathname.startsWith('/api/')||url.pathname.startsWith('/admin/')||url.pathname.startsWith('/account/'))return;
+  if(request.mode==='navigate'){
+    event.respondWith(fetch(request).catch(async()=>(await caches.match(OFFLINE))||new Response('Offline',{status:503})));
     return;
   }
-  const path = new URL(request.url).pathname;
-  if (path.includes('/_astro/') || path.includes('/pagefind/') || /\.(?:png|webp|svg|ico)$/.test(path)) {
-    event.respondWith(caches.match(request).then((cached) => cached || fetch(request).then((response) => { if (response.ok) { const copy = response.clone(); caches.open(VERSION).then((cache) => cache.put(request, copy)); } return response; })));
+  if(url.pathname.startsWith('/_astro/')||url.pathname.startsWith('/media/')||/\.(?:png|webp|svg|ico|woff2)$/.test(url.pathname)){
+    event.respondWith(caches.open(VERSION).then(async cache=>{
+      const cached=await cache.match(request);
+      if(cached)return cached;
+      const response=await fetch(request);
+      if(response.ok)await cache.put(request,response.clone());
+      return response;
+    }));
   }
 });

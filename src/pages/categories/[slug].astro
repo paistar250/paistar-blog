@@ -2,10 +2,12 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 import PageHeader from '../../components/PageHeader.astro';
-import { getPosts,categories,type Post } from '../../lib/blog';
+import { getPosts,categories,decodeTerm } from '../../lib/blog';
 import { categoryArt,categoryEmojis } from '../../data/art';
-interface Props { name:string; posts:Post[]; }
-export async function getStaticPaths(){const posts=await getPosts();return categories(posts).map(item=>({params:{slug:item.slug},props:{name:item.name,posts:posts.filter(post=>post.data.category===item.name)}}))}
-const {name,posts}=Astro.props;
+const all=await getPosts();
+const category=categories(all).find(item=>decodeTerm(item.slug)===decodeTerm(Astro.params.slug||''));
+if(!category)return Astro.rewrite('/404');
+const name=category.name;
+const posts=all.filter(post=>post.data.category===name);
 ---
 <BaseLayout title={name}><PageHeader title={(categoryEmojis[name]||'📂')+' '+name} subtitle={posts.length+' 篇文章'} artwork={categoryArt[name]||'notes'}/><div class="shell post-grid">{posts.map(post=><PostCard post={post}/>)}</div></BaseLayout>

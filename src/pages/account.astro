@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/admin.css';
+const user=Astro.locals.user;
+if(!user)return Astro.redirect('/login/?next=/account/');
+---
+<BaseLayout title="我的账号">
+<div class="shell workspace"><div class="workspace-top"><div><span class="workspace-label">YOUR CORNER</span><h1>我的账号</h1></div><a class="text-link" href={user.role==='admin'?'/admin/':'/journal/'}>返回{user.role==='admin'?'后台':'博客'} ↗</a></div>
+<section class="workspace-card account-card"><div class="account-summary"><img src="/avatar.webp" alt="" width="60" height="60"/><div><h2>{user.name}</h2><p>{user.email||user.username} · {user.role==='admin'?'管理员':'读者'}</p></div></div>
+<h3>{user.mustChangePassword?'设置你的管理员密码':'修改密码'}</h3>{user.mustChangePassword&&<p class="workspace-note">首次登录请先更换初始密码。</p>}
+<form data-password-form>
+<label class="editor-field"><span>当前密码</span><input name="currentPassword" type="password" autocomplete="current-password" required maxlength="128"/></label>
+<label class="editor-field"><span>新密码</span><input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="至少 12 个字符" required/></label>
+<label class="editor-field"><span>确认新密码</span><input name="confirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required/></label>
+<button class="button" type="submit">保存新密码 →</button><p class="form-status" role="status" aria-live="polite"></p>
+</form></section></div>
+<script>
+import { api } from '../lib/auth-client';
+const form=document.querySelector<HTMLFormElement>('[data-password-form]');
+const status=document.querySelector<HTMLElement>('.form-status');
+form?.addEventListener('submit',async event=>{event.preventDefault();if(!status)return;const data=new FormData(form);if(data.get('password')!==data.get('confirm')){status.textContent='两次新密码不一致。';status.dataset.error='true';return}const button=form.querySelector<HTMLButtonElement>('button[type=submit]')!;button.disabled=true;status.textContent='正在保存…';try{const result=await api<{redirect:string}>('/api/auth/password',{method:'POST',data:{currentPassword:data.get('currentPassword'),password:data.get('password')}});location.href=result.redirect}catch(error){status.textContent=error instanceof Error?error.message:'修改失败，请重试。';status.dataset.error='true';button.disabled=false}});
+if(new URLSearchParams(location.search).has('updated')&&status)status.textContent='密码已修改，其他设备的登录状态已退出。';
+</script>
+</BaseLayout>

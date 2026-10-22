@@ -1,0 +1,25 @@
+(blog) {
+  encode zstd gzip
+  request_body {
+    max_size 8MB
+  }
+  header {
+    X-Content-Type-Options nosniff
+    X-Frame-Options DENY
+    Referrer-Policy strict-origin-when-cross-origin
+    -Server
+  }
+  @private path /api/* /admin/* /account/* /login/* /signup/* /
+  header @private Cache-Control "private, no-store"
+  @worker path /service-worker.js
+  header @worker Cache-Control "no-cache"
+  @assets path /_astro/* /media/*
+  header @assets Cache-Control "public, max-age=31536000, immutable"
+  reverse_proxy app:4321 {
+    header_up X-Real-IP {remote_host}
+  }
+}
+
+paistar.eu.cc {
+  import blog
+}

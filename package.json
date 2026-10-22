@@ -1,31 +1,41 @@
 {
   "name": "paistar-blog",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build && pagefind --site dist",
+    "dev": "node --env-file-if-exists=.env node_modules/astro/bin/astro.mjs dev",
+    "build": "node scripts/prepare-content.mjs && astro build",
     "preview": "astro preview",
-    "check": "astro check",
-    "test": "node tests/static.mjs",
-    "test:e2e": "node tests/e2e.mjs"
+    "check": "node scripts/prepare-content.mjs && astro check",
+    "test": "node --test tests/core.test.ts",
+    "test:e2e": "node tests/server.e2e.mjs",
+    "start": "node --env-file-if-exists=.env dist/server/entry.mjs",
+    "bootstrap": "node --env-file-if-exists=.env scripts/bootstrap.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "8.0.2",
+    "@astrojs/node": "11.1.9",
     "@astrojs/react": "7.1.0",
     "@astrojs/rss": "4.0.19",
     "@astrojs/sitemap": "3.7.4",
     "@fontsource-variable/noto-sans-sc": "5.3.1",
     "@fontsource-variable/noto-serif-sc": "5.3.1",
     "astro": "7.3.4",
+    "marked": "18.1.1",
+    "mysql2": "3.24.6",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "sanitize-html": "2.18.1",
+    "sharp": "0.35.5",
+    "shiki": "4.5.0",
+    "yaml": "2.9.1"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@types/sanitize-html": "2.16.2",
     "pagefind": "1.5.2",
     "playwright": "1.57.0",
     "typescript": "6.0.3"

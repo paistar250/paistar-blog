@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+test "$(id -u)" -eq 0
+revision=${1:?Git revision required}
+[[ "$revision" =~ ^[0-9a-f]{40}$ ]] || exit 64
+exec 9>/run/lock/paistar-deploy.lock
+flock -w 600 9
+repository=/opt/paistar/source.git
+if ! test -d "$repository"; then
+  git clone --mirror https://github.com/paistar250/paistar-blog.git "$repository"
+fi
+git --git-dir="$repository" fetch origin main
+latest=$(git --git-dir="$repository" rev-parse FETCH_HEAD)
+if test "$latest" != "$revision"; then
+  printf 'A newer main revision exists; skip obsolete deployment.\n'
+  exit 0
+fi
+release_dir="/opt/paistar/releases/$revision"
+install -d -m 0755 "$release_dir"
+git --git-dir="$repository" archive "$revision" | tar -x -C "$release_dir"
+systemctl start paistar-mysql-backup.service
+install -d -m 0700 /var/backups/paistar/uploads-latest
+rsync -a /srv/paistar/uploads/ /var/backups/paistar/uploads-latest/
+bash "$release_dir/deploy/install.sh" "$release_dir" "$revision"

@@ -1,42 +1,46 @@
-name: Deploy blog to GitHub Pages
-
+name: Check and deploy blog
 on:
   push:
-    branches: [main]
+    branches: [main, codex/server-auth]
+  pull_request:
   workflow_dispatch:
-
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: github-pages
-  cancel-in-progress: true
-
+  group: server-blog-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run check
-      - run: npm run build
       - run: npm test
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: dist
-
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high
   deploy:
-    needs: build
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.SERVER_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    environment: server
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Deploy tested main revision
+        env:
+          SERVER_SSH_HOST: ${{ secrets.SERVER_SSH_HOST }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_SSH_HOST_KEY: ${{ secrets.SERVER_SSH_HOST_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/paistar-deploy-key"
+          hosts="$RUNNER_TEMP/paistar-known-hosts"
+          trap 'rm -f "$key" "$hosts"' EXIT
+          printf '%s\n' "$SERVER_SSH_KEY" > "$key"
+          printf '%s\n' "$SERVER_SSH_HOST_KEY" > "$hosts"
+          ssh -i "$key" -o BatchMode=yes -o ConnectTimeout=30 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" ubuntu@"$SERVER_SSH_HOST" "$GITHUB_SHA"

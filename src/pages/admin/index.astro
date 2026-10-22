@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { listPosts } from '../../server/posts';
+import { rows } from '../../server/database';
+import { formatShortDate } from '../../lib/blog';
+import '../../styles/admin.css';
+const posts=await listPosts(true);
+const readers=await rows("SELECT COUNT(*) AS total FROM blog_users WHERE role='reader'");
+---
+<BaseLayout title="文章后台">
+<div class="shell workspace"><div class="workspace-top"><div><span class="workspace-label">THE WRITING ROOM</span><h1>写下一篇好故事。</h1><p>你好，{Astro.locals.user?.name}。这里是你的文章工作台。</p></div><div class="workspace-actions"><a class="button secondary" href="/journal/">查看博客 ↗</a><a class="button" href="/admin/edit/">＋ 写文章</a></div></div>
+<div class="workspace-metrics"><div><strong>{posts.filter(post=>!post.data.draft).length}</strong><span>已发布</span></div><div><strong>{posts.filter(post=>post.data.draft).length}</strong><span>草稿</span></div><div><strong>{Number(readers[0].total)}</strong><span>注册读者</span></div></div>
+<section class="workspace-card" aria-label="文章管理">{posts.length?posts.map(post=><article class="manage-post" data-post-row><div><h2><a href={'/admin/edit/?post='+post.id}>{post.data.title}</a><span class:list={['state-badge',{published:!post.data.draft}]}>{post.data.draft?'草稿':'已发布'}</span>{post.data.pinned&&<span class="state-badge">置顶</span>}</h2><p>{post.data.category} · {formatShortDate(post.data.date)} · /posts/{post.id}/</p></div><div class="manage-post-actions"><a href={'/admin/edit/?post='+post.id}>编辑</a>{!post.data.draft&&<a href={'/posts/'+post.id+'/'} target="_blank" rel="noopener noreferrer">阅读 ↗</a>}<button type="button" data-delete-post={post.id} data-version={post.data.updated!.toISOString()} data-title={post.data.title}>删除</button></div></article>):<p class="workspace-note">还没有文章，写下第一篇吧。</p>}<p class="form-status" role="status" aria-live="polite"></p></section>
+</div>
+<script>
+import { api } from '../../lib/auth-client';
+const status=document.querySelector<HTMLElement>('.form-status');
+document.querySelectorAll<HTMLButtonElement>('[data-delete-post]').forEach(button=>button.addEventListener('click',async()=>{if(!confirm('确定删除《'+button.dataset.title+'》？删除前会保留一份服务器修订记录。'))return;button.disabled=true;try{await api('/api/admin/posts/'+button.dataset.deletePost,{method:'DELETE',data:{version:button.dataset.version}});location.reload()}catch(error){if(status){status.textContent=error instanceof Error?error.message:'删除失败。';status.dataset.error='true'}button.disabled=false}}));
+</script>
+</BaseLayout>

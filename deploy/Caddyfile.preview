@@ -1,0 +1,21 @@
+https://localhost {
+  tls internal
+  encode zstd gzip
+  request_body {
+    max_size 8MB
+  }
+  header {
+    Cache-Control "private, no-store"
+    X-Content-Type-Options nosniff
+    X-Frame-Options DENY
+    -Server
+  }
+  reverse_proxy app:4321 {
+    header_up X-Real-IP {remote_host}
+  }
+}
+
+http://:80 {
+  respond /healthz "Paistar migration ready" 200
+  respond "Site migration is being prepared." 503
+}

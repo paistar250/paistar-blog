@@ -27,7 +27,7 @@ const {title}=Astro.props;
   </div>
   <div class="auth-colophon" aria-hidden="true"><span>NOTES ON A QUIET DAY</span><span>© {new Date().getFullYear()} PAISTAR</span></div>
 </main>
-<dialog class="account-dialog" aria-labelledby="account-help-heading"><h2 id="account-help-heading">关于账号</h2><p>这是浏览器本地账号，不用于保护内容。密码经加盐校验后保存，不会上传。文章始终公开，清除浏览器数据会移除账号。</p><form method="dialog"><button class="button" type="submit">知道了</button></form></dialog>
+<dialog class="account-dialog" aria-labelledby="account-help-heading"><h2 id="account-help-heading">关于账号</h2><p>注册后可以跨设备登录。普通账号只读，只有管理员可以发布和编辑文章。</p><p>邮箱用于登录，目前未接入邮件验证或邮件找回密码。</p><form method="dialog"><button class="button" type="submit">知道了</button></form></dialog>
 <PointerEffects/>
 <script>
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));

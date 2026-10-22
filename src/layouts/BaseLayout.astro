@@ -12,12 +12,14 @@ const canonical=new URL(withBase(canonicalPath),Astro.site).toString();
 const socialImage=new URL(withBase(image),Astro.site).toString();
 const jsonLd=schema?JSON.stringify(schema).replace(/</g,'\\u003c'):'';
 const path=Astro.url.pathname;
+const user=Astro.locals.user;
 ---
 <!doctype html>
 <html lang="zh-CN" data-theme="dark" data-sw-url={withBase('/service-worker.js')}>
 <head>
 <meta charset="utf-8"/><ThemeInit/><meta name="viewport" content="width=device-width, initial-scale=1"/>
 <meta name="theme-color" content="#14191e"/><link rel="icon" href={withBase('/favicon.png')} type="image/png"/>
+{/^\/(?:admin|account)(?:\/|$)/.test(path)&&<meta name="robots" content="noindex,nofollow"/>}
 <link rel="manifest" href={withBase('/manifest.webmanifest')}/><link rel="alternate" type="application/rss+xml" title={site.title+' RSS'} href={withBase('/rss.xml')}/>
 <link rel="canonical" href={canonical}/><meta name="description" content={description}/>
 <meta property="og:locale" content="zh_CN"/><meta property="og:site_name" content={site.title}/><meta property="og:type" content={type}/><meta property="og:title" content={fullTitle}/><meta property="og:description" content={description}/><meta property="og:url" content={canonical}/><meta property="og:image" content={socialImage}/>
@@ -29,20 +31,18 @@ const path=Astro.url.pathname;
 <header class="site-header"><div class="header-inner">
 <a class="brand" href={withBase('/journal/')} aria-label="Paistar 手记，返回首页"><span>Paistar<span class="brand-suffix">手记</span></span></a>
 <nav class="desktop-nav" aria-label="主导航">{site.nav.map(item=><a href={withBase(item.href)} class:list={{active:path.startsWith(item.href)}} aria-current={path.startsWith(item.href)?'page':undefined}>{item.label}</a>)}</nav>
-<div class="header-actions"><a class="icon-button" href={withBase('/search/')} aria-label="搜索文章"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></a><ThemeButton/><a class="account-link" href={withBase('/login/')} data-account-link>登录</a><button class="logout-button" type="button" data-logout hidden>退出</button><button class="icon-button menu-toggle" type="button" aria-label="展开菜单" aria-expanded="false" aria-controls="mobile-nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div>
-</div><nav id="mobile-nav" class="mobile-nav" aria-label="移动端导航" hidden>{site.nav.map(item=><a href={withBase(item.href)}>{item.label}</a>)}<a href={withBase('/search/')}>搜索</a><a href={withBase('/login/')} data-mobile-account>登录</a></nav></header>
+<div class="header-actions"><a class="icon-button" href={withBase('/search/')} aria-label="搜索文章"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></a><ThemeButton/>{user?.role==='admin'&&<a class="account-link admin-nav-link" href="/admin/">后台</a>}<a class="account-link" href={user?'/account/':withBase('/login/')} data-account-link>{user?.name||'登录'}</a>{user&&<button class="logout-button" type="button" data-logout>退出</button>}<button class="icon-button menu-toggle" type="button" aria-label="展开菜单" aria-expanded="false" aria-controls="mobile-nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div>
+</div><nav id="mobile-nav" class="mobile-nav" aria-label="移动端导航" hidden>{site.nav.map(item=><a href={withBase(item.href)}>{item.label}</a>)}<a href={withBase('/search/')}>搜索</a>{user?.role==='admin'&&<a href="/admin/">文章后台</a>}<a href={user?'/account/':withBase('/login/')} data-mobile-account>{user?.name||'登录'}</a></nav></header>
 <main id="main"><slot/></main>
 <footer class="site-footer"><div class="shell footer-inner"><span><span class="footer-cat" aria-hidden="true">🐾</span>© {new Date().getFullYear()} Paistar</span><div class="footer-links"><a href={withBase('/about/')}>关于</a><a href={withBase('/contact/')}>联系</a><a href={withBase('/rss.xml')}>RSS</a><a href={site.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></div></footer>
 <script>
-import { getSession,logout } from '../lib/demo-auth';
+import { api } from '../lib/auth-client';
 import '../lib/card-motion';
 const menu=document.querySelector<HTMLButtonElement>('.menu-toggle');
 const mobileNav=document.querySelector<HTMLElement>('#mobile-nav');
 menu?.addEventListener('click',()=>{if(!mobileNav)return;mobileNav.hidden=!mobileNav.hidden;menu.setAttribute('aria-expanded',String(!mobileNav.hidden))});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&mobileNav&&menu){mobileNav.hidden=true;menu.setAttribute('aria-expanded','false')}});
-const session=getSession();
-if(session){for(const link of document.querySelectorAll<HTMLElement>('[data-account-link],[data-mobile-account]'))link.textContent=session.name;const button=document.querySelector<HTMLButtonElement>('[data-logout]');if(button)button.hidden=false}
-document.querySelector('[data-logout]')?.addEventListener('click',()=>{logout();location.href='/login/'});
+document.querySelector<HTMLButtonElement>('[data-logout]')?.addEventListener('click',async event=>{const button=event.currentTarget as HTMLButtonElement;button.disabled=true;try{await api('/api/auth/logout',{method:'POST',data:{}});location.href='/login/'}catch{button.disabled=false;button.textContent='重试退出'}});
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register(document.documentElement.dataset.swUrl||'/service-worker.js').catch(()=>{}));
 </script>
 <PointerEffects/>

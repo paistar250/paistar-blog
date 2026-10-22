@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+Astro.response.status=404;
 ---
 <BaseLayout title="页面未找到" canonicalPath="/404.html"><div class="narrow missing"><img src="/stickers/rocket.svg" alt="" width="150" height="150"/><span class="eyebrow">404 / NOT FOUND</span><h1>好像走远了 🪐</h1><div><a class="button" href="/journal/">回到首页</a><a class="button button-secondary" href="/search/">搜索文章</a></div></div></BaseLayout>
 <style>.missing{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-block:50px}.missing>img{margin-bottom:22px}.missing h1{font-size:2rem;font-weight:600;margin:12px 0 27px}.missing>div{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}</style>

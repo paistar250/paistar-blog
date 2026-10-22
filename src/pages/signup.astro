@@ -5,14 +5,14 @@ import AuthLayout from '../layouts/AuthLayout.astro';
 <form class="auth-form auth-form-signup" data-signup>
 <label>昵称<input name="name" type="text" autocomplete="nickname" minlength="2" maxlength="24" placeholder="怎么称呼你" required/></label>
 <label>邮箱<input name="email" type="email" autocomplete="username" placeholder="you@example.com" required/></label>
-<label>密码<input name="password" type="password" autocomplete="new-password" minlength="8" placeholder="至少 8 个字符" required/></label>
-<label>确认密码<input name="confirm" type="password" autocomplete="new-password" minlength="8" placeholder="再次输入密码" required/></label>
+<label>密码<input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="至少 12 个字符" required/></label>
+<label>确认密码<input name="confirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="再次输入密码" required/></label>
 <button class="button auth-submit" type="submit">注册<span aria-hidden="true">→</span></button><p class="auth-status" role="status" aria-live="polite"></p>
 </form><p class="auth-switch">已有账号？<a href="/login/">登录</a></p><div class="auth-divider" aria-hidden="true"></div><a class="auth-reading" href="/journal/">直接阅读 →</a>
 <script>
-import { register } from '../lib/demo-auth';
+import { api } from '../lib/auth-client';
 const form=document.querySelector<HTMLFormElement>('[data-signup]');
 const status=document.querySelector<HTMLElement>('.auth-status');
-form?.addEventListener('submit',async event=>{event.preventDefault();if(!status)return;const data=new FormData(form);const password=String(data.get('password')||'');if(password!==data.get('confirm')){status.textContent='两次密码不一致。';return}const button=form.querySelector<HTMLButtonElement>('[type=submit]');if(button)button.disabled=true;status.textContent='';try{await register(String(data.get('name')||''),String(data.get('email')||''),password);location.href='/login/?registered=1'}catch(error){status.textContent=error instanceof Error?error.message:'请重试';if(button)button.disabled=false}});
+form?.addEventListener('submit',async event=>{event.preventDefault();if(!status)return;const data=new FormData(form);const password=String(data.get('password')||'');if(password!==data.get('confirm')){status.textContent='两次密码不一致。';return}const button=form.querySelector<HTMLButtonElement>('[type=submit]');if(button)button.disabled=true;status.textContent='';try{await api('/api/auth/register',{method:'POST',data:{name:String(data.get('name')||''),email:String(data.get('email')||''),password}});location.href='/login/?registered=1'}catch(error){status.textContent=error instanceof Error?error.message:'请重试';if(button)button.disabled=false}});
 </script>
 </AuthLayout>
