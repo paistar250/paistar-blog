@@ -27,10 +27,10 @@ else
 fi
 install -m 0644 "$source_dir/deploy/compose.yaml" "$deploy_dir/compose.yaml"
 if test -f "$deploy_dir/public-tls-enabled"; then
-  install -m 0644 "$source_dir/deploy/Caddyfile" "$deploy_dir/Caddyfile"
+  cat "$source_dir/deploy/Caddyfile" > "$deploy_dir/Caddyfile"
   preview_origin=
 else
-  install -m 0644 "$source_dir/deploy/Caddyfile.preview" "$deploy_dir/Caddyfile"
+  cat "$source_dir/deploy/Caddyfile.preview" > "$deploy_dir/Caddyfile"
   preview_origin=https://localhost:8443
 fi
 printf 'BLOG_IMAGE=paistar-blog:%s\nCADDY_IMAGE=%s\nPREVIEW_ORIGIN=%s\n' "$release" "$caddy_image" "$preview_origin" > "$deploy_dir/.env"
@@ -43,5 +43,6 @@ if ! docker compose up -d --wait --wait-timeout 240; then
   fi
   exit 1
 fi
+docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile
 curl --fail --silent http://127.0.0.1:4321/api/health
 printf '\nApplication deployed; administrator credentials remain in restricted server files.\n'
